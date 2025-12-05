@@ -1,14 +1,12 @@
 #!/bin/bash
-# run_jl_embeddings_true.sh
 set -euo pipefail
 
-# ---- Tunables ----
 EMBEDDING_DIM=${EMBEDDING_DIM:-512}
-DATA_FILE=${DATA_FILE:-"/home/smascar/scratch/STAT_2025_with_abundance_cleaned.parquet"}
-MEMORY=${MEMORY:-"120GB"}     # bump if you can
-THREADS=${THREADS:-48}        # bump if you can
-OUTDIR=${OUTDIR:-"./jl_out"}  # where results go (not a temp dir)
-SHARDS=${SHARDS:-64}          # for dataset embeddings; 64–256 is typical
+DATA_FILE=${DATA_FILE:-"INSERT_NAME.parquet"}
+MEMORY=${MEMORY:-"120GB"}     
+THREADS=${THREADS:-48}        
+OUTDIR=${OUTDIR:-"./jl_out"}  
+SHARDS=${SHARDS:-64}          
 PARQUET_COMPRESSION=${PARQUET_COMPRESSION:-"ZSTD"}
 
 mkdir -p "$OUTDIR"
@@ -19,7 +17,6 @@ echo "MEMORY=$MEMORY  THREADS=$THREADS  SHARDS=$SHARDS"
 echo "OUTDIR=$OUTDIR"
 echo
 
-# A tiny helper to run embedded Python with env vars expanded
 py() { python3 - "$@" <<'PYCODE'
 import os, sys, math, duckdb, pyarrow as pa, pyarrow.parquet as pq, numpy as np
 EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM'])
@@ -185,10 +182,9 @@ con.execute(f"""
 COPY dataset_embeddings_all
 TO '{OUTDIR}/dataset_embeddings.parquet' (FORMAT PARQUET, COMPRESSION '{COMPRESS}');
 """)
-print("  ✓ dataset_embeddings.parquet", flush=True)
 
 con.close()
-print("=== Done ===", flush=True)
+
 PYCODE
 }
 
