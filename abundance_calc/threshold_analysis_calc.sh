@@ -1,19 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=cooccur_opt
-#SBATCH --account=def-acdoxey
+#SBATCH --job-name=##
+#SBATCH --account=##
 #SBATCH --time=10:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=200G
-#SBATCH --mail-user=s2mascar@uwaterloo.ca
+#SBATCH --mail-user=##
 #SBATCH --mail-type=ALL
 
-DUCKDB="/home/smascar/projects/def-acdoxey/smascar/duckdb"
+DUCKDB="ADD_PATH"
 NUM_CHUNKS=100
 DB_FILE="threshold_analysis.duckdb"
-
-# Remove old database if exists
 rm -f "$DB_FILE"
 
 # Initial setup
@@ -119,7 +117,7 @@ GROUP BY hp.host_tax_id, hp.path_tax_id, ht.threshold, pt.threshold;
 EOF
 done
 
-# Final summary and export
+# Final summary
 $DUCKDB "$DB_FILE" <<'EOF'
 CREATE OR REPLACE TABLE host_pathogen_threshold_summary AS
 SELECT
@@ -142,4 +140,3 @@ JOIN pair_threshold_counts pt
 COPY host_pathogen_threshold_summary TO 'host_pathogen_threshold_summary.parquet' (FORMAT PARQUET);
 EOF
 
-echo "Done! Output written to host_pathogen_threshold_summary.parquet"
