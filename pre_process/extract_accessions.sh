@@ -1,12 +1,9 @@
 #!/bin/bash
 
-# Optimized DuckDB Host-Microbe Abundance Processing
-# Usage: ./process_abundances.sh [input_parquet] [stat_path] [output_file]
-
 set -euo pipefail
 
 # Add duckdb to PATH
-export PATH="/home/smascar/projects/def-acdoxey/smascar:$PATH"
+export PATH="ADD_PATH:$PATH"
 
 # Check if duckdb is available
 if ! command -v duckdb &> /dev/null; then
@@ -18,7 +15,7 @@ fi
 
 # Configuration
 INPUT_PARQUET="${1:-pathogen_interac_with_sra.parquet}"
-STAT_PATH="${2:-/home/smascar/scratch/STAT_sorted_files/*}"
+STAT_PATH="${2:-ADD_PATH/*}"
 OUTPUT_FILE="${3:-pathogen_all_STAT_data.parquet}"
 THREADS="${DUCKDB_THREADS:-4}"
 MEMORY="${DUCKDB_MEMORY:-45GB}"
@@ -113,7 +110,6 @@ COPY (
 echo "Processing complete! Output saved to: $OUTPUT_FILE"
 echo "Log saved to: duckdb_processing.log"
 
-# Optional: Show basic statistics
 duckdb -c "
 SELECT 
   COUNT(*) as total_rows,
