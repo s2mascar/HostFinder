@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Add duckdb to PATH
-export PATH="/home/smascar/projects/def-acdoxey/smascar:$PATH"
+export PATH="ADD_PATH:$PATH"
 
 # Check if duckdb is available
 if ! command -v duckdb &> /dev/null; then
@@ -14,15 +14,13 @@ fi
 INPUT_PARQUET="pathogen_interac_with_sra.parquet"
 
 # Path to SRA metadata parquet files
-SRA_META_PATH="/home/smascar/scratch/STAT_data_2025/RAW_DATA/SRA_META_DATA-2025_01_15/*"
+SRA_META_PATH="ADD_PATH/*"
 
 # Intermediate file with unique accessions
 UNIQUE_ACC_PARQUET="unique_accessions_pat.parquet"
 
 # Output file with all combined SRA metadata
 OUTPUT_PARQUET="pathogen_interac_all_sra_metadata.parquet"
-
-echo "Step 1: Extracting unique SRA accessions from host-microbe pairs..."
 
 duckdb -cmd "
 COPY (
@@ -35,8 +33,6 @@ SELECT 'Total unique accessions: ' || COUNT(*)
 FROM read_parquet('$UNIQUE_ACC_PARQUET');
 "
 
-echo ""
-echo "Step 2: Filtering SRA metadata using unique accessions..."
 
 duckdb -cmd "
 SET memory_limit='8GB';
@@ -94,9 +90,6 @@ FROM read_parquet('$OUTPUT_PARQUET');
 #    'Total rows: ' || COUNT(*)
 #FROM read_parquet('pathogen_interac_all_sra_metadata_with_pairs.parquet');
 #"
-
-#echo ""
-echo "Finished!"
 echo "- Unique accessions: $UNIQUE_ACC_PARQUET"
 echo "- SRA metadata only: $OUTPUT_PARQUET"
 #echo "- SRA metadata with pair info: pathogen_interac_all_sra_metadata_with_pairs.parquet"
