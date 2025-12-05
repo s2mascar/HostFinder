@@ -1,18 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=cooccur_opt
-#SBATCH --account=def-acdoxey
-#SBATCH --time=10:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=200G
-#SBATCH --mail-user=s2mascar@uwaterloo.ca
-#SBATCH --mail-type=ALL
+DUCKDB=ADD_PATH
 
 
-DUCKDB=/home/smascar/projects/def-acdoxey/smascar/duckdb
-
-# Step 1: Create mappings only (very fast)
 $DUCKDB << 'EOF'
 SET threads TO 32;
 SET memory_limit = '180GB';
@@ -31,7 +20,7 @@ COPY (
 ) TO 'col_mapping.parquet' (FORMAT PARQUET);
 EOF
 
-# Step 2: Use a single-pass approach without materializing tables
+
 $DUCKDB << 'EOF'
 SET threads TO 32;
 SET memory_limit = '180GB';
@@ -49,7 +38,4 @@ COPY (
 ) TO 'sparse_matrix.parquet' (FORMAT PARQUET, COMPRESSION 'ZSTD');
 EOF
 
-echo "Done! Check outputs:"
-echo "- row_mapping.parquet"
-echo "- col_mapping.parquet"  
 echo "- sparse_matrix.parquet"
