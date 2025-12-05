@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# alpha_diversity_duckdb.sh — simple, no /scratch needed
-
 set -euo pipefail
 
 # Inputs / outputs
-INPUT_GLOB='/home/smascar/scratch/STAT_data_2025/RAW_DATA/STAT_DATA-2025_01_15/*.parquet'
+INPUT_GLOB='INSERT_NAME/*.parquet'
 OUT_DIR="$PWD/alpha_by_acc"
 
 # Resources
@@ -63,5 +61,5 @@ TO '${OUT_DIR}'
 (WITH (FORMAT PARQUET, COMPRESSION ZSTD, PARTITION_BY (acc_prefix)));
 "
 
-echo "Done. Parquet written to: ${OUT_DIR}"
+echo "Done. Written to: ${OUT_DIR}"
 
