@@ -1,0 +1,14 @@
+# Host-virus literature agent local files
+host_virus_agents/models/
+host_virus_agents/agent_env/
+host_virus_agents/logs/
+host_virus_agents/__pycache__/
+host_virus_agents/host_alias_cache.json
+host_virus_agents/benchmark_results.csv
+
+# Python
+*.pyc
+
+# SLURM
+*.out
+*.err
