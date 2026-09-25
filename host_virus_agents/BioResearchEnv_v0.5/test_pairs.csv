@@ -1,0 +1,13 @@
+host,virus,expected_evidence,expected_status,test_type,reference_hint
+Lampyris noctiluca,Lampyris noctiluca partiti-like virus 1,EXACT_SUPPORT,KNOWN,positive,PMC7093385
+Arabidopsis thaliana,Turnip mosaic virus,EXACT_SUPPORT,KNOWN,positive,PMID17427806
+Mus musculus,Mouse hepatitis virus,EXACT_SUPPORT,KNOWN,positive,PMID8677422
+Homo sapiens,SARS-CoV-2,EXACT_SUPPORT,KNOWN,positive,PMID32699094
+Lampyris noctiluca,Hubei partiti-like virus 31,RELATED_ONLY,POSSIBLY_KNOWN,related,PMC7093385
+Lampyris noctiluca,Hubei partiti-like virus 51,RELATED_ONLY,POSSIBLY_KNOWN,related,PMC7093385
+Lampyris noctiluca,Hubei chuvirus-like virus 3,RELATED_ONLY,POSSIBLY_KNOWN,related,PMC7093385
+Lampyris noctiluca,Hubei toti-like virus 16,RELATED_ONLY,POSSIBLY_KNOWN,related,PMC7093385
+Tribolium castaneum,Hubei partiti-like virus 31,NO_SUPPORT_OR_NO_PAPER,NO_EVIDENCE_FOUND,negative,HostFinder candidate
+Arabidopsis thaliana,Mouse hepatitis virus,NO_SUPPORT_OR_NO_PAPER,NO_EVIDENCE_FOUND,negative,decoy
+Mus musculus,Turnip mosaic virus,NO_SUPPORT_OR_NO_PAPER,NO_EVIDENCE_FOUND,negative,decoy
+Aedes aegypti,Mouse hepatitis virus,NO_SUPPORT_OR_NO_PAPER,NO_EVIDENCE_FOUND,negative,decoy

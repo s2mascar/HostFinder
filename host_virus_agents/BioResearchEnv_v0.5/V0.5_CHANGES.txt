@@ -1,0 +1,46 @@
+BioResearchEnv v0.5
+===================
+
+Targeted changes over v0.4:
+
+1. Focused rescue extraction
+   - Runs only when the primary extraction is empty/incomplete.
+   - Uses title, abstract, ranked host snippets, and ranked target-virus snippets.
+   - Logs extraction_status: SUCCESS, RESCUED, or FAILED.
+   - Logs extraction_attempts and extraction_error.
+
+2. DISCOVERED_IN support
+   - Added as a valid direct host-virus relationship type.
+   - Deterministically validated from discovery language.
+
+3. Virus Taxonomy / Alias Agent
+   - New bioresearch_env/virus_taxonomy_agent.py.
+   - Resolves target viruses using NCBI Taxonomy, preferring a known tax ID.
+   - Collects scientific name, synonyms/equivalent names, lineage, genus/family.
+   - Cached in virus_taxonomy_cache_v05.json.
+
+4. Alias-aware evidence extraction and verification
+   - Target-virus snippet retrieval searches validated target-virus aliases.
+   - same_virus() accepts validated aliases.
+   - Comparison-edge target matching accepts validated aliases.
+
+5. Benchmark diagnostics
+   - extraction_status_counts
+   - rescued_extractions
+   - failed_extractions
+   - virus_taxonomy_resolved_papers
+   - per-paper extraction status, attempts, error, target tax ID/name/aliases
+
+6. Versioned caches/results
+   - biological_context_cache_v05.json
+   - virus_taxonomy_cache_v05.json
+   - results/bioresearch_env_v05_results.csv
+   - logs/bioresearch_env_v05_<SLURM_JOB_ID>.log
+
+Unchanged intentionally:
+- search policy
+- global candidate ranking
+- reward function
+- biological prior logic
+- two-edge classification design
+- baseline judge

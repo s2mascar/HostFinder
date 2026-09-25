@@ -1,0 +1,38 @@
+# Local models
+models/
+
+# Python environment
+agent_env/
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Benchmark/output files
+benchmark_results.csv
+logs/
+*.out
+*.err
+
+# Local cache
+host_alias_cache.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+data/virushostdb*.tsv
+biological_context_cache.json
+
+# Environment/secrets
+.env
+
+# Logs
+*.log
+slurm-*.out

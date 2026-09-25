@@ -30,6 +30,10 @@ from taxonomy_aliases import (
     get_host_aliases
 )
 
+from bioresearch_env.relationship_language import (
+    interaction_proximity_score
+)
+
 
 # ============================================================
 # SETTINGS
@@ -878,7 +882,8 @@ def search_query_sources(
 def candidate_score(
     paper,
     host_aliases,
-    virus
+    virus,
+    host=None
 ):
 
     title = (
@@ -907,6 +912,10 @@ def candidate_score(
 
     score = 0
 
+    # ========================================================
+    # TARGET VIRUS
+    # ========================================================
+
     virus_title = contains_name(
         title,
         virus
@@ -922,89 +931,124 @@ def candidate_score(
         virus
     )
 
-    host_title = contains_any_alias(
+    # ========================================================
+    # EXACT SCIENTIFIC HOST NAME
+    # ========================================================
+
+    exact_host_title = (
+        contains_name(
+            title,
+            host
+        )
+        if host
+        else False
+    )
+
+    exact_host_abstract = (
+        contains_name(
+            abstract,
+            host
+        )
+        if host
+        else False
+    )
+
+    exact_host_full = (
+        contains_name(
+            full_text,
+            host
+        )
+        if host
+        else False
+    )
+
+    # ========================================================
+    # VALIDATED HOST ALIASES
+    # ========================================================
+
+    alias_title = contains_any_alias(
         title,
         host_aliases
     )
 
-    host_abstract = contains_any_alias(
+    alias_abstract = contains_any_alias(
         abstract,
         host_aliases
     )
 
-    host_full = contains_any_alias(
+    alias_full = contains_any_alias(
         full_text,
         host_aliases
     )
 
+    # Virus evidence.
     if virus_title:
         score += 15
-
-    if host_title:
-        score += 12
-
-    if (
-        virus_title
-        and host_title
-    ):
-        score += 20
 
     if virus_abstract:
         score += 9
 
-    if host_abstract:
-        score += 8
-
-    if (
-        virus_abstract
-        and host_abstract
-    ):
-        score += 15
-
     if virus_full:
         score += 4
 
-    if host_full:
-        score += 3
-
-    if (
-        virus_full
-        and host_full
-    ):
+    # Exact scientific host names receive much more weight than
+    # generic aliases such as "mouse" or "human".
+    if exact_host_title:
+        score += 15
+    elif alias_title:
         score += 5
 
-    # Prefer papers with stronger biological language
-    # in the abstract when both entities are present.
+    if exact_host_abstract:
+        score += 10
+    elif alias_abstract:
+        score += 4
+
+    if exact_host_full:
+        score += 4
+    elif alias_full:
+        score += 2
+
+    # Strong co-occurrence bonuses.
+    if (
+        virus_title
+        and exact_host_title
+    ):
+        score += 25
+
     if (
         virus_abstract
-        and host_abstract
+        and exact_host_abstract
     ):
-
-        abstract_lower = (
-            abstract.lower()
-        )
-
-        for term in [
-            "infect",
-            "infection",
-            "detected",
-            "isolated",
-            "identified",
-            "sequenc",
-            "patient",
-            "host",
-            "sample"
-        ]:
-
-            if term in abstract_lower:
-                score += 1
+        score += 18
 
     if (
-        paper.get(
-            "full_text",
-            ""
-        )
+        virus_abstract
+        and alias_abstract
+        and not exact_host_abstract
     ):
+        score += 6
+
+    # Most important new signal: host + virus + relationship
+    # language in the same local passage.
+    score += interaction_proximity_score(
+        abstract,
+        host,
+        host_aliases,
+        virus
+    )
+
+    # Full text is much longer and noisier, so use half-weight.
+    score += (
+        interaction_proximity_score(
+            full_text,
+            host,
+            host_aliases,
+            virus
+        )
+        // 2
+    )
+
+    if full_text:
         score += 2
 
     return score
@@ -1169,7 +1213,8 @@ def run_search_agent(
             candidate_score(
                 paper,
                 host_aliases,
-                virus
+                virus,
+                host=host
             ),
         reverse=True
     )
