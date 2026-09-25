@@ -17,7 +17,8 @@ set -euo pipefail
 # ALWAYS RUN FROM THE DIRECTORY CONTAINING THIS SCRIPT
 # ============================================================
 
-cd /home/smascar/projects/def-acdoxey/smascar/HostFinder/host_virus_agents
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 
 # ============================================================
@@ -40,12 +41,12 @@ mkdir -p data
 # LOG EVERYTHING
 # ============================================================
 
-LOG_FILE="logs/bioresearch_env_v06_${SLURM_JOB_ID}.log"
+LOG_FILE="logs/bioresearch_env_v05_${SLURM_JOB_ID}.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 
 echo "============================================================"
-echo "BIORESEARCHENV v0.6 SLURM JOB"
+echo "BIORESEARCHENV v0.5 SLURM JOB"
 echo "============================================================"
 echo "Job ID: ${SLURM_JOB_ID}"
 echo "Working directory: $(pwd)"
@@ -163,7 +164,7 @@ if [ "$RUN_LEGACY" -eq 1 ]; then
 
     python evaluate_pairs.py \
         test_pairs.csv \
-        results/legacy_benchmark_v06.csv
+        results/legacy_benchmark_v05.csv
 
     echo
     echo "Updated legacy benchmark complete."
@@ -175,17 +176,17 @@ fi
 
 
 # ============================================================
-# BIORESEARCHENV v0.6 BENCHMARK
+# BIORESEARCHENV v0.5 BENCHMARK
 # ============================================================
 
 echo
 echo "============================================================"
-echo "STARTING BIORESEARCHENV v0.6 BENCHMARK"
+echo "STARTING BIORESEARCHENV v0.5 BENCHMARK"
 echo "============================================================"
 
 python evaluate_env.py \
     test_pairs.csv \
-    results/bioresearch_env_v06_results.csv
+    results/bioresearch_env_v05_results.csv
 
 
 echo
@@ -193,10 +194,10 @@ echo "============================================================"
 echo "RESULT FILES"
 echo "============================================================"
 
-ls -lh results/bioresearch_env_v06_results.csv
+ls -lh results/bioresearch_env_v05_results.csv
 
-if [ -f results/legacy_benchmark_v06.csv ]; then
-    ls -lh results/legacy_benchmark_v06.csv
+if [ -f results/legacy_benchmark_v05.csv ]; then
+    ls -lh results/legacy_benchmark_v05.csv
 fi
 
 

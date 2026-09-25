@@ -1,0 +1,580 @@
+{
+  "lampyris noctiluca||lampyris noctiluca partiti like virus 1": {
+    "target_host": {
+      "scientific_name": "Lampyris noctiluca",
+      "tax_id": "41311",
+      "broad_group": "ANIMAL",
+      "family": "Lampyridae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": null,
+      "tax_id": null,
+      "family": null,
+      "genus": null
+    },
+    "host_range": {
+      "match_level": null,
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "arabidopsis thaliana||turnip mosaic virus": {
+    "target_host": {
+      "scientific_name": "Arabidopsis thaliana",
+      "tax_id": "3702",
+      "broad_group": "PLANT",
+      "family": "Brassicaceae",
+      "order": "Brassicales",
+      "class": "Magnoliopsida"
+    },
+    "target_virus": {
+      "scientific_name": "Turnip mosaic virus",
+      "tax_id": "12230",
+      "family": "Potyviridae",
+      "genus": "Potyvirus"
+    },
+    "host_range": {
+      "match_level": "EXACT_VIRUS",
+      "known_non_target_hosts": 7,
+      "broad_group_counts": {
+        "PLANT": 7
+      },
+      "closest_known_hosts": [
+        {
+          "host_tax_id": "126270",
+          "host_name": "Alliaria petiolata",
+          "broad_group": "PLANT",
+          "distance": 2,
+          "lca_rank": "family",
+          "lca_name": "Brassicaceae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "3705",
+          "host_name": "Brassica",
+          "broad_group": "PLANT",
+          "distance": 2,
+          "lca_rank": "family",
+          "lca_name": "Brassicaceae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "264418",
+          "host_name": "Hesperis matronalis",
+          "broad_group": "PLANT",
+          "distance": 2,
+          "lca_rank": "family",
+          "lca_name": "Brassicaceae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "38206",
+          "host_name": "Calanthe",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "clade",
+          "lca_name": "Mesangiospermae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "3719",
+          "host_name": "Capsella bursa-pastoris",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "tribe",
+          "lca_name": "Camelineae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "13274",
+          "host_name": "Stellaria media",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "clade",
+          "lca_name": "Pentapetalae",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "74517",
+          "host_name": "Trifolium hybridum",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "clade",
+          "lca_name": "rosids",
+          "evidence": "UniProt"
+        }
+      ],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "BIOLOGICALLY_CONSISTENT",
+      "reason": "The target host belongs to a broad biological group already represented among known non-target hosts."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 7,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "mus musculus||mouse hepatitis virus": {
+    "target_host": {
+      "scientific_name": "Mus musculus",
+      "tax_id": "10090",
+      "broad_group": "ANIMAL",
+      "family": "Muridae",
+      "order": "Rodentia",
+      "class": "Mammalia"
+    },
+    "target_virus": {
+      "scientific_name": "Murine hepatitis virus",
+      "tax_id": "11138",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus"
+    },
+    "host_range": {
+      "match_level": "VIRUS_TAXID",
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": true,
+      "raw_host_records": 1,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "homo sapiens||sars cov 2": {
+    "target_host": {
+      "scientific_name": "Homo sapiens",
+      "tax_id": "9606",
+      "broad_group": "ANIMAL",
+      "family": "Hominidae",
+      "order": "Primates",
+      "class": "Mammalia"
+    },
+    "target_virus": {
+      "scientific_name": "Severe acute respiratory syndrome coronavirus 2",
+      "tax_id": "2697049",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus"
+    },
+    "host_range": {
+      "match_level": "VIRUS_TAXID",
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": true,
+      "raw_host_records": 1,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "lampyris noctiluca||hubei partiti like virus 31": {
+    "target_host": {
+      "scientific_name": "Lampyris noctiluca",
+      "tax_id": "41311",
+      "broad_group": "ANIMAL",
+      "family": "Lampyridae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Hubei partiti-like virus 31",
+      "tax_id": "1923038",
+      "family": null,
+      "genus": null
+    },
+    "host_range": {
+      "match_level": null,
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "lampyris noctiluca||hubei partiti like virus 51": {
+    "target_host": {
+      "scientific_name": "Lampyris noctiluca",
+      "tax_id": "41311",
+      "broad_group": "ANIMAL",
+      "family": "Lampyridae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Hubei partiti-like virus 51",
+      "tax_id": "1923060",
+      "family": null,
+      "genus": null
+    },
+    "host_range": {
+      "match_level": null,
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "lampyris noctiluca||hubei chuvirus like virus 3": {
+    "target_host": {
+      "scientific_name": "Lampyris noctiluca",
+      "tax_id": "41311",
+      "broad_group": "ANIMAL",
+      "family": "Lampyridae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Hubei chuvirus-like virus 3",
+      "tax_id": "1922858",
+      "family": "Chuviridae",
+      "genus": "Scarabeuvirus"
+    },
+    "host_range": {
+      "match_level": "EXACT_VIRUS",
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 1,
+      "environmental_contexts": [
+        {
+          "sample_type": "Organismal",
+          "source_organism": "6961",
+          "pmid": "27880757",
+          "evidence": "Literature"
+        }
+      ]
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "Only environmental or unresolved Virus-Host DB records were available. These records are not treated as biological hosts and cannot establish host-range compatibility."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 1,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "lampyris noctiluca||hubei toti like virus 16": {
+    "target_host": {
+      "scientific_name": "Lampyris noctiluca",
+      "tax_id": "41311",
+      "broad_group": "ANIMAL",
+      "family": "Lampyridae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Hubei toti-like virus 16",
+      "tax_id": "1923304",
+      "family": null,
+      "genus": null
+    },
+    "host_range": {
+      "match_level": "EXACT_VIRUS",
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 1,
+      "environmental_contexts": [
+        {
+          "sample_type": "Organismal",
+          "source_organism": "6893",
+          "pmid": "27880757",
+          "evidence": "Literature"
+        }
+      ]
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "Only environmental or unresolved Virus-Host DB records were available. These records are not treated as biological hosts and cannot establish host-range compatibility."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 1,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "tribolium castaneum||hubei partiti like virus 31": {
+    "target_host": {
+      "scientific_name": "Tribolium castaneum",
+      "tax_id": "7070",
+      "broad_group": "ANIMAL",
+      "family": "Tenebrionidae",
+      "order": "Coleoptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Hubei partiti-like virus 31",
+      "tax_id": "1923038",
+      "family": null,
+      "genus": null
+    },
+    "host_range": {
+      "match_level": null,
+      "known_non_target_hosts": 0,
+      "broad_group_counts": {},
+      "closest_known_hosts": [],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "UNKNOWN",
+      "reason": "No non-target host-range records were available for the exact virus or its taxonomic fallback."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 0,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "arabidopsis thaliana||mouse hepatitis virus": {
+    "target_host": {
+      "scientific_name": "Arabidopsis thaliana",
+      "tax_id": "3702",
+      "broad_group": "PLANT",
+      "family": "Brassicaceae",
+      "order": "Brassicales",
+      "class": "Magnoliopsida"
+    },
+    "target_virus": {
+      "scientific_name": "Murine hepatitis virus",
+      "tax_id": "11138",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus"
+    },
+    "host_range": {
+      "match_level": "VIRUS_TAXID",
+      "known_non_target_hosts": 1,
+      "broad_group_counts": {
+        "ANIMAL": 1
+      },
+      "closest_known_hosts": [
+        {
+          "host_tax_id": "10090",
+          "host_name": "Mus musculus",
+          "broad_group": "ANIMAL",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        }
+      ],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "BIOLOGICALLY_DISCORDANT",
+      "reason": "The target host belongs to a different broad biological group from the currently observed non-target host range. This is only a prior and must not override explicit literature evidence."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 1,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "mus musculus||turnip mosaic virus": {
+    "target_host": {
+      "scientific_name": "Mus musculus",
+      "tax_id": "10090",
+      "broad_group": "ANIMAL",
+      "family": "Muridae",
+      "order": "Rodentia",
+      "class": "Mammalia"
+    },
+    "target_virus": {
+      "scientific_name": "Turnip mosaic virus",
+      "tax_id": "12230",
+      "family": "Potyviridae",
+      "genus": "Potyvirus"
+    },
+    "host_range": {
+      "match_level": "EXACT_VIRUS",
+      "known_non_target_hosts": 7,
+      "broad_group_counts": {
+        "PLANT": 7
+      },
+      "closest_known_hosts": [
+        {
+          "host_tax_id": "126270",
+          "host_name": "Alliaria petiolata",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "3705",
+          "host_name": "Brassica",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "38206",
+          "host_name": "Calanthe",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "3719",
+          "host_name": "Capsella bursa-pastoris",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "264418",
+          "host_name": "Hesperis matronalis",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "13274",
+          "host_name": "Stellaria media",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        },
+        {
+          "host_tax_id": "74517",
+          "host_name": "Trifolium hybridum",
+          "broad_group": "PLANT",
+          "distance": 8,
+          "lca_rank": "domain",
+          "lca_name": "Eukaryota",
+          "evidence": "UniProt"
+        }
+      ],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "BIOLOGICALLY_DISCORDANT",
+      "reason": "The target host belongs to a different broad biological group from the currently observed non-target host range. This is only a prior and must not override explicit literature evidence."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 7,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  },
+  "aedes aegypti||mouse hepatitis virus": {
+    "target_host": {
+      "scientific_name": "Aedes aegypti",
+      "tax_id": "7159",
+      "broad_group": "ANIMAL",
+      "family": "Culicidae",
+      "order": "Diptera",
+      "class": "Insecta"
+    },
+    "target_virus": {
+      "scientific_name": "Murine hepatitis virus",
+      "tax_id": "11138",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus"
+    },
+    "host_range": {
+      "match_level": "VIRUS_TAXID",
+      "known_non_target_hosts": 1,
+      "broad_group_counts": {
+        "ANIMAL": 1
+      },
+      "closest_known_hosts": [
+        {
+          "host_tax_id": "10090",
+          "host_name": "Mus musculus",
+          "broad_group": "ANIMAL",
+          "distance": 8,
+          "lca_rank": "clade",
+          "lca_name": "Bilateria",
+          "evidence": "UniProt"
+        }
+      ],
+      "environmental_record_count": 0,
+      "environmental_contexts": []
+    },
+    "biological_prior": {
+      "status": "BIOLOGICALLY_CONSISTENT",
+      "reason": "The target host belongs to a broad biological group already represented among known non-target hosts."
+    },
+    "_diagnostics": {
+      "target_was_present_in_database": false,
+      "raw_host_records": 1,
+      "environmental_records": 0,
+      "virus_host_db_path": "data/virushostdb.daily.tsv"
+    }
+  }
+}

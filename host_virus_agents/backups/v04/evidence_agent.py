@@ -472,90 +472,6 @@ def get_virus_context_snippets(
 # PYTHON EVIDENCE CLASSIFICATION
 # ============================================================
 
-
-HOST_ASSOCIATION_TYPES = {
-    "DETECTED_IN",
-    "IDENTIFIED_IN",
-    "DISCOVERED_IN",
-    "ISOLATED_FROM",
-    "RECOVERED_FROM",
-    "SEQUENCED_FROM",
-    "FOUND_IN",
-    "PRESENT_IN",
-    "OBTAINED_FROM",
-    "AMPLIFIED_FROM",
-    "INFECTION_OF",
-    "NATURAL_INFECTION",
-    "EXPERIMENTAL_INFECTION",
-    "REPLICATES_IN",
-    "TRANSMITTED_TO",
-    "ASSOCIATED_WITH",
-    "STUDY_ASSOCIATION",
-}
-
-COMPARISON_RELATIONSHIP_TYPES = {
-    "SEQUENCE_SIMILARITY",
-    "PHYLOGENETIC_COMPARISON",
-    "RELATED_VIRUS",
-    "SAME_FAMILY",
-    "SAME_GENUS",
-}
-
-
-def _normalize_host_relationship_type(value):
-    value = str(value or "UNCLEAR").upper().strip()
-
-    aliases = {
-        "DISCOVERED": "DISCOVERED_IN",
-        "IDENTIFIED": "IDENTIFIED_IN",
-        "DETECTED": "DETECTED_IN",
-        "ISOLATED": "ISOLATED_FROM",
-        "RECOVERED": "RECOVERED_FROM",
-        "SEQUENCED": "SEQUENCED_FROM",
-    }
-
-    return aliases.get(value, value)
-
-
-def _normalize_comparison_relationship_type(value, passage=""):
-    value = str(value or "UNCLEAR").upper().strip()
-
-    aliases = {
-        "PHYLOGENETIC_SIMILARITY": "PHYLOGENETIC_COMPARISON",
-        "PHYLOGENETIC_RELATEDNESS": "PHYLOGENETIC_COMPARISON",
-        "SEQUENCE_COMPARISON": "SEQUENCE_SIMILARITY",
-        "SEQUENCE_IDENTITY": "SEQUENCE_SIMILARITY",
-        "SIMILARITY": "SEQUENCE_SIMILARITY",
-    }
-
-    value = aliases.get(value, value)
-
-    if value in COMPARISON_RELATIONSHIP_TYPES or value in {
-        "REFERENCE_ONLY",
-        "DIFFERENT_HOST",
-        "NO_RELATION",
-        "UNCLEAR",
-        "MENTION_ONLY",
-    }:
-        return value
-
-    lower = str(passage or "").lower()
-
-    if "phylogen" in lower or "clustered with" in lower:
-        return "PHYLOGENETIC_COMPARISON"
-
-    if (
-        "similar" in lower
-        or "identity" in lower
-        or "blast" in lower
-    ):
-        return "SEQUENCE_SIMILARITY"
-
-    if "related" in lower or "closest" in lower:
-        return "RELATED_VIRUS"
-
-    return value
-
 def classify_relationship(
     extraction,
     host_aliases,
@@ -565,18 +481,18 @@ def classify_relationship(
     virus_aliases=None,
 ):
     """
-    Deterministically classify one paper using two strictly separated
-    evidence edges:
+    Deterministically classify one paper using two explicit evidence
+    edges:
 
         host edge:
-            target study host -> host-associated virus
+            study host -> host-associated virus
 
         comparison edge:
             host-associated virus -> comparison/target virus
 
-    v0.6 safety rule:
-    virus-virus comparison language (sequence similarity, phylogeny,
-    same family/genus) can NEVER establish a host edge.
+    This separation prevents a comparison virus from being treated as a
+    virus of the target host merely because it is mentioned in the same
+    paper, while still allowing valid related-virus evidence chains.
     """
 
     biological_context = biological_context or {}
@@ -585,50 +501,65 @@ def classify_relationship(
     # EXTRACTED FIELDS
     # ========================================================
 
-    study_host = str(extraction.get("study_host", "") or "").strip()
-    study_host_passage = str(
-        extraction.get("study_host_passage", "") or ""
-    ).strip()
+    study_host = (
+        extraction.get("study_host", "")
+        or ""
+    )
 
-    host_virus_name = str(
-        extraction.get("host_virus_name", "") or ""
-    ).strip()
-    host_virus_passage = str(
-        extraction.get("host_virus_passage", "") or ""
-    ).strip()
+    study_host_passage = (
+        extraction.get("study_host_passage", "")
+        or ""
+    )
 
-    host_virus_relationship_type = _normalize_host_relationship_type(
+    host_virus_name = (
+        extraction.get("host_virus_name", "")
+        or ""
+    )
+
+    host_virus_passage = (
+        extraction.get("host_virus_passage", "")
+        or ""
+    )
+
+    host_virus_relationship_type = (
         extraction.get("host_virus_relationship_type")
         or extraction.get("relationship_type", "UNCLEAR")
         or "UNCLEAR"
+    ).upper().strip()
+
+    comparison_source_virus_name = (
+        extraction.get("comparison_source_virus_name", "")
+        or ""
     )
 
-    comparison_source_virus_name = str(
-        extraction.get("comparison_source_virus_name", "") or ""
-    ).strip()
-    comparison_virus_name = str(
-        extraction.get("comparison_virus_name", "") or ""
-    ).strip()
-    comparison_host_or_sample = str(
-        extraction.get("comparison_host_or_sample", "") or ""
-    ).strip()
+    comparison_virus_name = (
+        extraction.get("comparison_virus_name", "")
+        or ""
+    )
 
-    comparison_relationship_passage = str(
+    comparison_host_or_sample = (
+        extraction.get("comparison_host_or_sample", "")
+        or ""
+    )
+
+    comparison_relationship_type = (
+        extraction.get("comparison_relationship_type")
+        or extraction.get("relationship_type", "UNCLEAR")
+        or "UNCLEAR"
+    ).upper().strip()
+
+    comparison_relationship_passage = (
         extraction.get("comparison_relationship_passage")
         or extraction.get("relationship_passage", "")
         or ""
-    ).strip()
-
-    comparison_relationship_type = _normalize_comparison_relationship_type(
-        extraction.get("comparison_relationship_type")
-        or extraction.get("relationship_type", "UNCLEAR")
-        or "UNCLEAR",
-        comparison_relationship_passage,
     )
 
-    # If the model omitted the comparison source, the host-associated
-    # virus is the only safe source candidate. Record this inference.
+    # If the model omitted the comparison source, the only legitimate
+    # source candidate in this extraction is the host-associated virus.
+    # Record the inference so diagnostics distinguish it from an explicit
+    # model extraction.
     comparison_source_inferred = False
+
     if (
         not comparison_source_virus_name
         and host_virus_name
@@ -638,24 +569,26 @@ def classify_relationship(
         comparison_source_inferred = True
 
     # ========================================================
-    # VERIFY GROUNDED SOURCE TEXT
+    # VERIFY QUOTED TEXT
     # ========================================================
 
     study_host_passage_verified = verify_passage(
         study_host_passage,
         evidence_source,
     )
+
     host_virus_passage_verified = verify_passage(
         host_virus_passage,
         evidence_source,
     )
+
     comparison_relationship_passage_verified = verify_passage(
         comparison_relationship_passage,
         evidence_source,
     )
 
     # ========================================================
-    # TARGET HOST RESOLUTION
+    # RESOLVE TARGET HOST
     # ========================================================
 
     target_host_name = (
@@ -669,20 +602,7 @@ def classify_relationship(
         normalize_entity(target_host_name) == "homo sapiens"
         or any(
             normalize_entity(alias) == "homo sapiens"
-            for alias in (host_aliases or [])
-        )
-    )
-
-    model_host_name_matches_target = name_matches_host(
-        study_host,
-        host_aliases,
-    )
-
-    passage_contains_target_host = (
-        study_host_passage_verified
-        and text_contains_alias(
-            study_host_passage,
-            host_aliases,
+            for alias in host_aliases
         )
     )
 
@@ -695,21 +615,28 @@ def classify_relationship(
         )
     )
 
-    # CRITICAL v0.6 rule: an LLM-provided study_host string is not enough.
-    # The grounded passage itself must establish the target host, except for
-    # the explicitly handled Homo sapiens clinical normalization.
     study_host_matches_target = (
-        passage_contains_target_host
+        name_matches_host(
+            study_host,
+            host_aliases,
+        )
+        or (
+            study_host_passage_verified
+            and text_contains_alias(
+                study_host_passage,
+                host_aliases,
+            )
+        )
         or human_clinical_context
     )
 
     verified_target_host_context = (
-        study_host_passage_verified
-        and study_host_matches_target
+        study_host_matches_target
+        and study_host_passage_verified
     )
 
     # ========================================================
-    # VIRUS ENTITY RESOLUTION
+    # RESOLVE VIRUSES
     # ========================================================
 
     host_virus_matches_target = same_virus(
@@ -734,25 +661,22 @@ def classify_relationship(
     )
 
     host_virus_passage_mentions_host_virus = (
-        text_contains_name(host_virus_passage, host_virus_name)
+        text_contains_name(
+            host_virus_passage,
+            host_virus_name,
+        )
         if host_virus_name
         else False
-    )
-
-    host_virus_passage_contains_target_host = (
-        host_virus_passage_verified
-        and text_contains_alias(
-            host_virus_passage,
-            host_aliases,
-        )
     )
 
     target_virus_names = [target_virus]
     target_virus_names.extend(virus_aliases or [])
 
-    comparison_relationship_mentions_target = text_contains_any_name(
-        comparison_relationship_passage,
-        target_virus_names,
+    comparison_relationship_mentions_target = (
+        text_contains_any_name(
+            comparison_relationship_passage,
+            target_virus_names,
+        )
     )
 
     comparison_relationship_mentions_source = (
@@ -765,10 +689,10 @@ def classify_relationship(
     )
 
     # ========================================================
-    # STRICT EDGE TYPE SETS
+    # RELATIONSHIP TYPES
     # ========================================================
 
-    host_association_types = {
+    direct_types = {
         "DETECTED_IN",
         "IDENTIFIED_IN",
         "DISCOVERED_IN",
@@ -788,18 +712,6 @@ def classify_relationship(
         "STUDY_ASSOCIATION",
     }
 
-    # Only these host-edge types may use two passages from the same
-    # host-specific discovery study.
-    contextual_host_types = {
-        "DETECTED_IN",
-        "IDENTIFIED_IN",
-        "DISCOVERED_IN",
-        "SEQUENCED_FROM",
-        "FOUND_IN",
-        "PRESENT_IN",
-        "STUDY_ASSOCIATION",
-    }
-
     related_types = {
         "SEQUENCE_SIMILARITY",
         "PHYLOGENETIC_COMPARISON",
@@ -808,50 +720,70 @@ def classify_relationship(
         "SAME_GENUS",
     }
 
+    negative_host_types = {
+        "MENTION_ONLY",
+        "DIFFERENT_HOST",
+        "NO_RELATION",
+    }
+
     # ========================================================
     # HOST EDGE SUPPORT
     # ========================================================
 
     combined_host_context = normalize_whitespace(
-        study_host_passage + " " + host_virus_passage
+        study_host_passage
+        + " "
+        + host_virus_passage
     )
 
-    host_specific_study_context = has_host_specific_study_context(
-        combined_host_context
-    )
-    paper_has_host_specific_study_context = has_host_specific_study_context(
-        evidence_source
+    host_virus_passage_has_direct_language = (
+        has_direct_interaction_language(
+            host_virus_passage
+        )
     )
 
-    # For ordinary direct evidence, the same grounded virus passage must
-    # contain the target host (or clear human clinical context). This avoids
-    # stitching together unrelated sections of a long paper.
-    direct_passage_has_target_host = (
-        host_virus_passage_contains_target_host
-        or (
-            human_target
-            and has_human_clinical_context(host_virus_passage)
+    combined_context_has_direct_language = (
+        has_direct_interaction_language(
+            combined_host_context
+        )
+    )
+
+    host_specific_study_context = (
+        has_host_specific_study_context(
+            combined_host_context
+        )
+    )
+
+    # v0.4: also inspect the supplied paper evidence as a whole. In
+    # discovery papers, the virome/transcriptome framing may occur in the
+    # title or abstract while the verified host and virus passages occur
+    # elsewhere.
+    paper_has_host_specific_study_context = (
+        has_host_specific_study_context(
+            evidence_source
         )
     )
 
     direct_host_relationship_supported = (
-        host_virus_relationship_type in host_association_types
-        and host_virus_passage_verified
-        and host_virus_passage_mentions_host_virus
-        and direct_passage_has_target_host
-        and relationship_type_supported_by_text(
-            host_virus_relationship_type,
-            host_virus_passage,
+        host_virus_relationship_type in direct_types
+        and (
+            relationship_type_supported_by_text(
+                host_virus_relationship_type,
+                host_virus_passage,
+            )
+            or relationship_type_supported_by_text(
+                host_virus_relationship_type,
+                combined_host_context,
+            )
         )
     )
 
-    # Cross-passage host evidence is allowed only for genuine host-specific
-    # discovery designs and only for host-association relationship types.
     contextual_host_association_supported = (
-        host_virus_relationship_type in contextual_host_types
-        and verified_target_host_context
+        verified_target_host_context
         and host_virus_passage_verified
         and host_virus_passage_mentions_host_virus
+        and host_virus_relationship_type
+            not in negative_host_types
         and (
             host_specific_study_context
             or paper_has_host_specific_study_context
@@ -859,22 +791,19 @@ def classify_relationship(
     )
 
     human_clinical_association_supported = (
-        human_target
-        and host_virus_relationship_type in host_association_types
-        and verified_target_host_context
+        human_clinical_context
+        and host_virus_relationship_type
+            not in negative_host_types
         and host_virus_passage_verified
         and host_virus_passage_mentions_host_virus
         and (
-            has_human_clinical_context(host_virus_passage)
-            or has_human_clinical_context(combined_host_context)
-            or has_human_clinical_context(evidence_source)
-        )
-        and (
-            relationship_type_supported_by_text(
-                host_virus_relationship_type,
-                host_virus_passage,
+            combined_context_has_direct_language
+            or has_human_clinical_context(
+                combined_host_context
             )
-            or host_virus_relationship_type in contextual_host_types
+            or has_human_clinical_context(
+                evidence_source
+            )
         )
     )
 
@@ -888,8 +817,7 @@ def classify_relationship(
         host_edge_support_mode = "NONE"
 
     host_edge_verified = (
-        host_virus_relationship_type in host_association_types
-        and verified_target_host_context
+        verified_target_host_context
         and host_virus_passage_verified
         and host_virus_passage_mentions_host_virus
         and host_edge_support_mode != "NONE"
@@ -909,6 +837,11 @@ def classify_relationship(
         )
     )
 
+    # The relationship passage should identify the source virus when
+    # possible. If it uses a pronoun/abbreviation, an explicitly extracted
+    # comparison_source_virus_name matching host_virus_name can still link
+    # the edge, provided the passage itself is verified and contains the
+    # target comparison virus plus relationship language.
     comparison_source_link_supported = (
         comparison_source_matches_host_virus
         and (
@@ -937,8 +870,6 @@ def classify_relationship(
         "virus_passage": host_virus_passage,
         "study_host_passage_verified": study_host_passage_verified,
         "virus_passage_verified": host_virus_passage_verified,
-        "model_host_name_matches_target": model_host_name_matches_target,
-        "passage_contains_target_host": passage_contains_target_host,
         "target_host_match": study_host_matches_target,
         "target_virus_match": host_virus_matches_target,
         "support_mode": host_edge_support_mode,
@@ -965,46 +896,108 @@ def classify_relationship(
     extraction["comparison_edge"] = comparison_edge
 
     # ========================================================
-    # BACKWARDS-COMPATIBLE DIAGNOSTICS
+    # SAVE BACKWARDS-COMPATIBLE DIAGNOSTICS
     # ========================================================
 
-    extraction["study_host_passage_verified"] = study_host_passage_verified
-    extraction["study_host_matches_target"] = study_host_matches_target
-    extraction["model_host_name_matches_target"] = model_host_name_matches_target
-    extraction["passage_contains_target_host"] = passage_contains_target_host
-    extraction["human_clinical_context"] = human_clinical_context
-    extraction["verified_target_host_context"] = verified_target_host_context
-    extraction["strong_study_host_context"] = verified_target_host_context
-    extraction["host_virus_passage_verified"] = host_virus_passage_verified
-    extraction["host_virus_matches_target"] = host_virus_matches_target
-    extraction["comparison_virus_matches_target"] = comparison_virus_matches_target
-    extraction["comparison_source_matches_host_virus"] = comparison_source_matches_host_virus
-    extraction["comparison_relationship_passage_verified"] = comparison_relationship_passage_verified
-    extraction["relationship_passage_verified"] = comparison_relationship_passage_verified
-    extraction["comparison_relationship_mentions_target_virus"] = comparison_relationship_mentions_target
-    extraction["relationship_mentions_target_virus"] = comparison_relationship_mentions_target
-    extraction["comparison_relationship_mentions_source_virus"] = comparison_relationship_mentions_source
-    extraction["host_specific_study_context"] = host_specific_study_context
-    extraction["paper_has_host_specific_study_context"] = paper_has_host_specific_study_context
-    extraction["direct_host_relationship_supported"] = direct_host_relationship_supported
-    extraction["contextual_host_association_supported"] = contextual_host_association_supported
-    extraction["human_clinical_association_supported"] = human_clinical_association_supported
-    extraction["host_association_supported"] = host_edge_verified
-    extraction["related_relationship_supported"] = related_relationship_supported
-    extraction["comparison_edge_verified"] = comparison_edge_verified
+    extraction["study_host_passage_verified"] = (
+        study_host_passage_verified
+    )
+    extraction["study_host_matches_target"] = (
+        study_host_matches_target
+    )
+    extraction["human_clinical_context"] = (
+        human_clinical_context
+    )
+    extraction["verified_target_host_context"] = (
+        verified_target_host_context
+    )
+    extraction["strong_study_host_context"] = (
+        verified_target_host_context
+    )
+    extraction["host_virus_passage_verified"] = (
+        host_virus_passage_verified
+    )
+    extraction["host_virus_matches_target"] = (
+        host_virus_matches_target
+    )
+    extraction["comparison_virus_matches_target"] = (
+        comparison_virus_matches_target
+    )
+    extraction["comparison_source_matches_host_virus"] = (
+        comparison_source_matches_host_virus
+    )
+    extraction["comparison_relationship_passage_verified"] = (
+        comparison_relationship_passage_verified
+    )
+    extraction["relationship_passage_verified"] = (
+        comparison_relationship_passage_verified
+    )
+    extraction["comparison_relationship_mentions_target_virus"] = (
+        comparison_relationship_mentions_target
+    )
+    extraction["relationship_mentions_target_virus"] = (
+        comparison_relationship_mentions_target
+    )
+    extraction["comparison_relationship_mentions_source_virus"] = (
+        comparison_relationship_mentions_source
+    )
+    extraction["host_virus_passage_has_direct_language"] = (
+        host_virus_passage_has_direct_language
+    )
+    extraction["combined_context_has_direct_language"] = (
+        combined_context_has_direct_language
+    )
+    extraction["host_specific_study_context"] = (
+        host_specific_study_context
+    )
+    extraction["paper_has_host_specific_study_context"] = (
+        paper_has_host_specific_study_context
+    )
+    extraction["direct_host_relationship_supported"] = (
+        direct_host_relationship_supported
+    )
+    extraction["contextual_host_association_supported"] = (
+        contextual_host_association_supported
+    )
+    extraction["human_clinical_association_supported"] = (
+        human_clinical_association_supported
+    )
+    extraction["host_association_supported"] = (
+        host_edge_verified
+    )
+    extraction["related_relationship_supported"] = (
+        related_relationship_supported
+    )
+    extraction["comparison_edge_verified"] = (
+        comparison_edge_verified
+    )
+
     extraction["reported_virus_name"] = host_virus_name
     extraction["reported_host_or_sample"] = study_host
-    extraction["reported_virus_matches_target"] = host_virus_matches_target
-    extraction["reported_host_matches_target"] = study_host_matches_target
-    extraction["reported_virus_passage_verified"] = host_virus_passage_verified
+    extraction["reported_virus_matches_target"] = (
+        host_virus_matches_target
+    )
+    extraction["reported_host_matches_target"] = (
+        study_host_matches_target
+    )
+    extraction["reported_virus_passage_verified"] = (
+        host_virus_passage_verified
+    )
 
     # ========================================================
     # EXACT SUPPORT
     # ========================================================
 
-    if host_edge_verified and host_virus_matches_target:
-        extraction["relationship_type"] = host_virus_relationship_type
-        extraction["relationship_passage"] = host_virus_passage
+    if (
+        host_edge_verified
+        and host_virus_matches_target
+    ):
+        extraction["relationship_type"] = (
+            host_virus_relationship_type
+        )
+        extraction["relationship_passage"] = (
+            host_virus_passage
+        )
         extraction["classification_basis"] = (
             "VERIFIED_HOST_EDGE_TO_TARGET_VIRUS"
         )
@@ -1019,8 +1012,12 @@ def classify_relationship(
         and not host_virus_matches_target
         and comparison_edge_verified
     ):
-        extraction["relationship_type"] = comparison_relationship_type
-        extraction["relationship_passage"] = comparison_relationship_passage
+        extraction["relationship_type"] = (
+            comparison_relationship_type
+        )
+        extraction["relationship_passage"] = (
+            comparison_relationship_passage
+        )
         extraction["classification_basis"] = (
             "VERIFIED_HOST_EDGE_PLUS_COMPARISON_EDGE"
         )
@@ -1029,17 +1026,20 @@ def classify_relationship(
     # ========================================================
     # TARGET VIRUS EXPLICITLY ASSOCIATED WITH ANOTHER HOST
     # ========================================================
+    # v0.4 deliberately does NOT classify a target virus as
+    # VIRUS_OTHER_HOST merely because it appears as a comparison virus
+    # known from another host. That is normal for phylogenetic/reference
+    # comparisons. The target virus must itself be the host-associated
+    # virus in a non-target study, or be explicitly labelled DIFFERENT_HOST
+    # in a verified comparison passage.
+    # ========================================================
 
     non_target_host_direct_edge = (
         not verified_target_host_context
         and host_virus_matches_target
-        and host_virus_relationship_type in host_association_types
         and host_virus_passage_verified
         and host_virus_passage_mentions_host_virus
-        and relationship_type_supported_by_text(
-            host_virus_relationship_type,
-            host_virus_passage,
-        )
+        and direct_host_relationship_supported
     )
 
     explicit_comparison_other_host = (
@@ -1050,34 +1050,33 @@ def classify_relationship(
         and bool(comparison_host_or_sample)
     )
 
-    if non_target_host_direct_edge or explicit_comparison_other_host:
+    if (
+        non_target_host_direct_edge
+        or explicit_comparison_other_host
+    ):
         extraction["classification_basis"] = (
             "TARGET_VIRUS_VERIFIED_IN_NON_TARGET_HOST"
         )
         return "VIRUS_OTHER_HOST"
 
     # ========================================================
-    # INCOMPLETE RELATED CLAIM
+    # RELATED CLAIM WITHOUT A COMPLETE TWO-EDGE CHAIN
     # ========================================================
 
     if comparison_relationship_type in related_types:
-        extraction["relationship_type"] = comparison_relationship_type
-        extraction["relationship_passage"] = comparison_relationship_passage
+        extraction["relationship_type"] = (
+            comparison_relationship_type
+        )
+        extraction["relationship_passage"] = (
+            comparison_relationship_passage
+        )
         extraction["classification_basis"] = (
             "RELATED_LANGUAGE_BUT_INCOMPLETE_EDGE_CHAIN"
         )
         return "NO_SUPPORT"
 
-    # A comparison-type label is never valid as a host edge. If the model
-    # produced one, fail closed rather than turning it into exact support.
-    if host_virus_relationship_type in related_types:
-        extraction["classification_basis"] = (
-            "INVALID_COMPARISON_TYPE_ON_HOST_EDGE"
-        )
-        return "NO_SUPPORT"
-
     # ========================================================
-    # EXPLICIT NON-SUPPORT
+    # EXPLICIT NON-SUPPORT / MENTION ONLY
     # ========================================================
 
     if host_virus_relationship_type == "MENTION_ONLY":
@@ -1088,19 +1087,30 @@ def classify_relationship(
 
     if comparison_relationship_type == "REFERENCE_ONLY":
         extraction["relationship_type"] = "MENTION_ONLY"
-        extraction["relationship_passage"] = comparison_relationship_passage
+        extraction["relationship_passage"] = (
+            comparison_relationship_passage
+        )
         extraction["classification_basis"] = "REFERENCE_ONLY"
         return "MENTION_ONLY"
 
     if (
-        host_virus_relationship_type in {"DIFFERENT_HOST", "NO_RELATION"}
-        or comparison_relationship_type in {"DIFFERENT_HOST", "NO_RELATION"}
+        host_virus_relationship_type
+        in {"DIFFERENT_HOST", "NO_RELATION"}
+        or comparison_relationship_type
+        in {"DIFFERENT_HOST", "NO_RELATION"}
     ):
-        if non_target_host_direct_edge or explicit_comparison_other_host:
-            extraction["classification_basis"] = "EXPLICIT_NON_TARGET_HOST"
+        if (
+            non_target_host_direct_edge
+            or explicit_comparison_other_host
+        ):
+            extraction["classification_basis"] = (
+                "EXPLICIT_NON_TARGET_HOST"
+            )
             return "VIRUS_OTHER_HOST"
 
-        extraction["classification_basis"] = "EXPLICIT_NO_RELATION"
+        extraction["classification_basis"] = (
+            "EXPLICIT_NO_RELATION"
+        )
         return "NO_SUPPORT"
 
     # ========================================================
@@ -1165,13 +1175,18 @@ def _empty_extraction(reason=""):
     }
 
 
-def _extraction_rescue_reason(
+def _extraction_needs_rescue(
     extraction,
     evidence_source,
-    target_virus,
     target_virus_names,
 ):
-    """Return a short rescue reason, or an empty string if no rescue is needed."""
+    """
+    Rescue only genuine extraction failures.
+
+    Trigger when the model produced no meaningful entity fields, or when
+    the supplied evidence visibly contains a target-virus name/alias but
+    neither host_virus_name nor comparison_virus_name was extracted.
+    """
 
     extraction = extraction or {}
 
@@ -1182,17 +1197,7 @@ def _extraction_rescue_reason(
     ]
 
     if not any(str(value or "").strip() for value in core_fields):
-        return "EMPTY_EXTRACTION"
-
-    host_type = _normalize_host_relationship_type(
-        extraction.get("host_virus_relationship_type")
-        or extraction.get("relationship_type", "UNCLEAR")
-    )
-
-    # A virus-virus comparison label on the host edge is the exact failure
-    # mode that caused v0.5 to promote comparison viruses to KNOWN.
-    if host_type in COMPARISON_RELATIONSHIP_TYPES:
-        return "COMPARISON_TYPE_ON_HOST_EDGE"
+        return True
 
     target_visible = text_contains_any_name(
         evidence_source,
@@ -1204,24 +1209,7 @@ def _extraction_rescue_reason(
         or str(extraction.get("comparison_virus_name") or "").strip()
     )
 
-    if target_visible and not extracted_virus:
-        return "TARGET_VISIBLE_BUT_NOT_EXTRACTED"
-
-    # If the requested target has been put on the host edge with a comparison
-    # relationship, force a role-correction pass.
-    host_virus_name = str(extraction.get("host_virus_name") or "").strip()
-    if (
-        host_virus_name
-        and same_virus(
-            host_virus_name,
-            target_virus,
-            target_aliases=target_virus_names,
-        )
-        and host_type in COMPARISON_RELATIONSHIP_TYPES
-    ):
-        return "TARGET_PROMOTED_FROM_COMPARISON"
-
-    return ""
+    return bool(target_visible and not extracted_virus)
 
 
 def _run_extraction(messages, max_new_tokens=500):
@@ -1230,240 +1218,8 @@ def _run_extraction(messages, max_new_tokens=500):
         max_new_tokens=max_new_tokens,
         max_input_tokens=MAX_INPUT_TOKENS,
     )
+
     return _extract_json_object(response)
-
-
-def _flexible_name_matches(text, name):
-    """Yield raw-text regex matches tolerant of punctuation/hyphen changes."""
-    if not text or not name:
-        return []
-
-    tokens = normalize_entity(name).split()
-    if not tokens:
-        return []
-
-    pattern = r"(?<!\\w)" + r"[\\W_]+".join(
-        re.escape(token) for token in tokens
-    ) + r"(?!\\w)"
-
-    return list(
-        re.finditer(
-            pattern,
-            text,
-            flags=re.IGNORECASE,
-        )
-    )
-
-
-def _source_window(source_text, start, end, window=650):
-    """Return an exact substring from source_text around a match."""
-    left = max(0, start - window)
-    right = min(len(source_text), end + window)
-    return source_text[left:right].strip()
-
-
-def _best_grounded_entity_passage(
-    source_text,
-    names,
-    host_aliases=None,
-    prefer_direct=False,
-    prefer_study_context=False,
-    prefer_related=False,
-):
-    """Find the highest-scoring exact source window containing an entity."""
-
-    candidates = []
-    seen_names = set()
-
-    for index, name in enumerate(names or []):
-        key = normalize_entity(name)
-        if not key or key in seen_names:
-            continue
-        seen_names.add(key)
-
-        for match in _flexible_name_matches(source_text, name):
-            snippet = _source_window(
-                source_text,
-                match.start(),
-                match.end(),
-            )
-
-            score = 20 if index == 0 else 15
-
-            if host_aliases and text_contains_alias(snippet, host_aliases):
-                score += 15
-
-            if prefer_direct and has_direct_interaction_language(snippet):
-                score += 10
-
-            if prefer_study_context and has_host_specific_study_context(snippet):
-                score += 10
-
-            if prefer_related and related_type_supported_by_text(
-                "RELATED_VIRUS",
-                snippet,
-            ):
-                score += 8
-
-            # Shorter windows are easier to verify and less likely to combine
-            # unrelated parts of the paper when scores tie.
-            candidates.append((score, -len(snippet), snippet))
-
-    if not candidates:
-        return ""
-
-    candidates.sort(reverse=True)
-    return candidates[0][2]
-
-
-def _best_grounded_comparison_passage(
-    source_text,
-    source_virus,
-    comparison_virus,
-    comparison_aliases=None,
-):
-    target_names = [comparison_virus]
-    target_names.extend(comparison_aliases or [])
-
-    candidates = []
-
-    for name in target_names:
-        for match in _flexible_name_matches(source_text, name):
-            snippet = _source_window(
-                source_text,
-                match.start(),
-                match.end(),
-                window=800,
-            )
-
-            score = 10
-
-            if source_virus and text_contains_name(snippet, source_virus):
-                score += 20
-
-            if (
-                "phylogen" in snippet.lower()
-                or "similar" in snippet.lower()
-                or "identity" in snippet.lower()
-                or "closest" in snippet.lower()
-                or "related" in snippet.lower()
-                or "blast" in snippet.lower()
-            ):
-                score += 20
-
-            candidates.append((score, -len(snippet), snippet))
-
-    if not candidates:
-        return ""
-
-    candidates.sort(reverse=True)
-    return candidates[0][2]
-
-
-def _ground_extraction_passages(
-    extraction,
-    evidence_source,
-    host_aliases,
-    target_virus,
-    virus_aliases,
-):
-    """
-    Replace model-generated/reconstructed quotations with exact spans copied
-    from evidence_source. Entity roles and relationship labels are NOT changed.
-    """
-
-    extraction = dict(extraction or {})
-    replacements = []
-
-    # Study-host passage: prefer the scientific name first, then validated
-    # aliases. This independently verifies that the target host is actually
-    # present in the supplied paper evidence.
-    host_names = list(host_aliases or [])
-
-    existing = str(extraction.get("study_host_passage") or "")
-    existing_ok = (
-        verify_passage(existing, evidence_source)
-        and text_contains_alias(existing, host_aliases)
-    )
-
-    if not existing_ok:
-        grounded = _best_grounded_entity_passage(
-            evidence_source,
-            host_names,
-            host_aliases=host_aliases,
-            prefer_direct=True,
-            prefer_study_context=True,
-        )
-        if grounded:
-            extraction["study_host_passage"] = grounded
-            replacements.append("study_host_passage")
-
-    # Host-associated-virus passage.
-    host_virus_name = str(extraction.get("host_virus_name") or "").strip()
-    if host_virus_name:
-        existing = str(extraction.get("host_virus_passage") or "")
-        existing_ok = (
-            verify_passage(existing, evidence_source)
-            and text_contains_name(existing, host_virus_name)
-        )
-
-        if not existing_ok:
-            grounded = _best_grounded_entity_passage(
-                evidence_source,
-                [host_virus_name],
-                host_aliases=host_aliases,
-                prefer_direct=True,
-                prefer_study_context=True,
-            )
-            if grounded:
-                extraction["host_virus_passage"] = grounded
-                replacements.append("host_virus_passage")
-
-    # Virus-virus comparison passage.
-    comparison_virus = str(
-        extraction.get("comparison_virus_name") or ""
-    ).strip()
-    comparison_source = str(
-        extraction.get("comparison_source_virus_name")
-        or extraction.get("host_virus_name")
-        or ""
-    ).strip()
-
-    if comparison_virus:
-        existing = str(
-            extraction.get("comparison_relationship_passage")
-            or extraction.get("relationship_passage")
-            or ""
-        )
-        existing_ok = (
-            verify_passage(existing, evidence_source)
-            and text_contains_name(existing, comparison_virus)
-        )
-
-        comparison_aliases = (
-            virus_aliases
-            if same_virus(
-                comparison_virus,
-                target_virus,
-                target_aliases=virus_aliases,
-            )
-            else []
-        )
-
-        if not existing_ok:
-            grounded = _best_grounded_comparison_passage(
-                evidence_source,
-                comparison_source,
-                comparison_virus,
-                comparison_aliases=comparison_aliases,
-            )
-            if grounded:
-                extraction["comparison_relationship_passage"] = grounded
-                replacements.append("comparison_relationship_passage")
-
-    extraction["grounding_applied"] = bool(replacements)
-    extraction["grounding_replacements"] = replacements
-    return extraction
 
 
 def _run_rescue_extraction(
@@ -1475,74 +1231,51 @@ def _run_rescue_extraction(
     abstract,
     host_context,
     virus_context,
-    rescue_reason,
 ):
-    """Focused second pass used only for empty or role-conflicted extraction."""
+    """
+    Second-pass extraction for cases where the normal prompt returns an
+    empty structure. It intentionally uses only focused evidence snippets.
+    """
 
     alias_text = "\n".join(
-        f"- {alias}" for alias in (host_aliases or [])
+        f"- {alias}"
+        for alias in (host_aliases or [])
     )
+
     virus_alias_text = "\n".join(
-        f"- {alias}" for alias in (virus_aliases or [])[:20]
+        f"- {alias}"
+        for alias in (virus_aliases or [])[:20]
     )
 
     rescue_system_prompt = """
-You are correcting a failed scientific evidence extraction.
+You are rescuing a failed scientific evidence extraction.
 
-The paper can contain TWO DIFFERENT relations:
+Use ONLY the supplied title, abstract, HOST CONTEXT, and TARGET VIRUS
+CONTEXT. Do not invent passages.
 
-1. HOST EDGE: study host -> host-associated virus
-2. COMPARISON EDGE: host-associated virus -> comparison virus
+Your goal is to recover two explicit edges when supported:
 
-CRITICAL ROLE CONSTRAINTS:
-- host_virus_relationship_type MUST describe a HOST-to-VIRUS association.
-- NEVER use SEQUENCE_SIMILARITY, PHYLOGENETIC_COMPARISON, RELATED_VIRUS,
-  SAME_FAMILY, or SAME_GENUS as host_virus_relationship_type.
-- If the TARGET VIRUS appears only in text such as "similar to", "closest
-  to", "phylogenetically related to", or a taxonomy comparison, it belongs
-  in comparison_virus_name, NOT host_virus_name.
-- comparison_source_virus_name is the virus being compared TO the target.
-- Do not promote the requested target virus to host_virus_name simply
-  because it is the requested target.
+1. study host -> host-associated virus
+2. host-associated virus -> comparison virus
 
-Valid HOST relationship types:
-DETECTED_IN
-IDENTIFIED_IN
-DISCOVERED_IN
-ISOLATED_FROM
-RECOVERED_FROM
-SEQUENCED_FROM
-FOUND_IN
-PRESENT_IN
-OBTAINED_FROM
-AMPLIFIED_FROM
-INFECTION_OF
-NATURAL_INFECTION
-EXPERIMENTAL_INFECTION
-REPLICATES_IN
-TRANSMITTED_TO
-ASSOCIATED_WITH
-STUDY_ASSOCIATION
-MENTION_ONLY
-DIFFERENT_HOST
-NO_RELATION
-UNCLEAR
+A host-specific virome/transcriptome/HTS study can establish the first
+edge across two passages: one establishes the target host/study material
+and another names a virus discovered/identified/characterized in that
+study.
 
-Valid COMPARISON relationship types:
-SEQUENCE_SIMILARITY
-PHYLOGENETIC_COMPARISON
-RELATED_VIRUS
-SAME_FAMILY
-SAME_GENUS
-REFERENCE_ONLY
-DIFFERENT_HOST
-NO_RELATION
-UNCLEAR
+If a virus is described as discovered in the target host, use
+DISCOVERED_IN. If the paper only establishes a host-specific discovery
+study across passages, STUDY_ASSOCIATION is allowed.
 
-Do not invent passages. The Python verifier will ground exact source spans
-separately, so prioritize correct ENTITY ROLES and RELATIONSHIP TYPES.
+For the second edge, preserve the virus on the LEFT side of a sequence or
+phylogenetic comparison as comparison_source_virus_name and the virus on
+the RIGHT side as comparison_virus_name.
 
-Return ONLY JSON:
+The target virus may be written using a validated taxonomic synonym.
+Do not treat a comparison virus as a virus of the target host unless the
+paper actually supports that host association.
+
+Return ONLY JSON with this schema:
 {
   "study_host": "...",
   "study_host_passage": "...",
@@ -1559,9 +1292,6 @@ Return ONLY JSON:
 """
 
     rescue_user_prompt = f"""
-RESCUE REASON:
-{rescue_reason}
-
 TARGET HOST:
 {host}
 
@@ -1587,11 +1317,19 @@ TARGET VIRUS CONTEXT:
 {virus_context}
 """
 
+    messages = [
+        {
+            "role": "system",
+            "content": rescue_system_prompt,
+        },
+        {
+            "role": "user",
+            "content": rescue_user_prompt,
+        },
+    ]
+
     return _run_extraction(
-        [
-            {"role": "system", "content": rescue_system_prompt},
-            {"role": "user", "content": rescue_user_prompt},
-        ],
+        messages,
         max_new_tokens=500,
     )
 
@@ -1601,10 +1339,17 @@ def analyze_paper(
     host_aliases,
     virus,
     paper,
-    biological_context=None,
+    biological_context=None
 ):
     full_text = paper.get("full_text", "") or ""
-    abstract = (paper.get("abstract", "") or "")[:MAX_ABSTRACT_CHARS]
+    abstract = paper.get("abstract", "") or ""
+    abstract = abstract[:MAX_ABSTRACT_CHARS]
+
+    # --------------------------------------------------------
+    # Resolve target-virus names once per paper. The underlying resolver
+    # is disk-cached, so repeated papers/tasks do not repeatedly hit NCBI.
+    # Prefer the tax ID already supplied by the Biological Context Agent.
+    # --------------------------------------------------------
 
     context_tax_id = (
         (biological_context or {})
@@ -1617,7 +1362,11 @@ def analyze_paper(
         tax_id=context_tax_id,
     )
 
-    virus_aliases = list(virus_taxonomy.get("aliases", []) or [])
+    virus_aliases = list(
+        virus_taxonomy.get("aliases", [])
+        or []
+    )
+
     if not any(
         normalize_entity(alias) == normalize_entity(virus)
         for alias in virus_aliases
@@ -1628,6 +1377,7 @@ def analyze_paper(
         full_text,
         host_aliases,
     )
+
     virus_context = get_virus_context_snippets(
         full_text,
         host_aliases,
@@ -1637,7 +1387,7 @@ def analyze_paper(
 
     evidence_source = f"""
 TITLE:
-{paper.get('title', '')}
+{paper.get("title", "")}
 
 ABSTRACT:
 {abstract}
@@ -1649,10 +1399,16 @@ TARGET-VIRUS CONTEXT:
 {virus_context}
 """
 
-    aliases_text = "\n".join(f"- {alias}" for alias in host_aliases)
-    virus_aliases_text = "\n".join(
-        f"- {alias}" for alias in virus_aliases[:20]
+    aliases_text = "\n".join(
+        f"- {alias}"
+        for alias in host_aliases
     )
+
+    virus_aliases_text = "\n".join(
+        f"- {alias}"
+        for alias in virus_aliases[:20]
+    )
+
     biological_context_text = (
         context_for_prompt(biological_context)
         if biological_context
@@ -1661,24 +1417,31 @@ TARGET-VIRUS CONTEXT:
 
     system_prompt = """
 You are a scientific evidence extraction agent.
-You extract evidence; you do NOT make the final classification.
 
-Separate TWO relations:
-A. study host -> host-associated virus
-B. host-associated virus -> comparison virus
+You are NOT responsible for the final classification.
+Your job is to extract only what the paper explicitly supports.
 
-CRITICAL ROLE CONSTRAINTS:
-- host_virus_relationship_type MUST be a HOST-to-VIRUS relationship.
-- NEVER assign SEQUENCE_SIMILARITY, PHYLOGENETIC_COMPARISON,
-  RELATED_VIRUS, SAME_FAMILY, or SAME_GENUS to host_virus_relationship_type.
-- If the requested TARGET VIRUS appears only as a sequence/phylogenetic/
-  taxonomic comparison, it MUST be comparison_virus_name, not
-  host_virus_name.
-- comparison_source_virus_name is the host-associated virus on the left
-  side of that virus-virus comparison.
-- A target name or validated synonym does not by itself prove a host link.
+A host and virus merely appearing in the same paper is NOT evidence
+that the virus infects or is naturally associated with that host.
+This is especially important for model organisms, cell lines,
+experimental systems, controls, vectors, and comparison species.
 
-Valid HOST relationship types:
+BIOLOGICAL CONTEXT is a PRIOR only. It is not evidence.
+VALIDATED TARGET-VIRUS ALIASES are entity-resolution hints only. They
+may indicate historical/accepted names for the same taxon; they do not
+by themselves establish a host relationship.
+
+You must separately identify two possible relationships:
+
+A. STUDY HOST -> HOST-ASSOCIATED VIRUS
+B. HOST-ASSOCIATED VIRUS -> COMPARISON VIRUS
+
+HOST-ASSOCIATED VIRUS can be supported by direct relationship evidence
+or by a clearly host-specific virome/transcriptome/HTS discovery study.
+In discovery studies, the host and virus may be established in separate
+verified passages from the same study.
+
+Valid host relationship types include:
 DETECTED_IN
 IDENTIFIED_IN
 DISCOVERED_IN
@@ -1701,7 +1464,7 @@ DIFFERENT_HOST
 NO_RELATION
 UNCLEAR
 
-Valid COMPARISON relationship types:
+Valid virus-to-virus comparison types include:
 SEQUENCE_SIMILARITY
 PHYLOGENETIC_COMPARISON
 RELATED_VIRUS
@@ -1712,15 +1475,24 @@ DIFFERENT_HOST
 NO_RELATION
 UNCLEAR
 
-A host-specific virome/transcriptome/HTS discovery paper can establish a
-host-associated virus across separate passages, but a general paper that
-mentions the host and virus in unrelated sections cannot.
+For relationship B, comparison_source_virus_name is the virus on the
+left side of the comparison. In a valid TARGET_HOST_RELATED chain it
+normally equals host_virus_name. comparison_virus_name is the compared
+virus, which may be written using one of the validated target-virus
+aliases.
 
-BIOLOGICAL CONTEXT is a PRIOR only, never evidence.
-VALIDATED TARGET-VIRUS ALIASES are entity-resolution hints only.
+Do not put a comparison virus into host_virus_name merely because it is
+the requested TARGET VIRUS.
 
-For Homo sapiens, clearly human patients/clinical specimens may normalize
-to Homo sapiens. A human cell line by itself is not natural-host evidence.
+HUMAN CLINICAL NORMALIZATION:
+If the target host is Homo sapiens, clearly human patients, clinical
+specimens, nasopharyngeal/respiratory samples, or infected individuals
+may be normalized to Homo sapiens. A human cell line by itself is not
+natural-host evidence.
+
+PASSAGES MUST BE VERBATIM substrings of the supplied PAPER evidence.
+If a required passage does not exist, return an empty string. Never
+invent a quote.
 
 Return ONLY JSON:
 {
@@ -1759,8 +1531,14 @@ PAPER:
 """
 
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt},
+        {
+            "role": "system",
+            "content": system_prompt,
+        },
+        {
+            "role": "user",
+            "content": user_prompt,
+        },
     ]
 
     print("\nEvidence Agent analyzing:")
@@ -1769,7 +1547,6 @@ PAPER:
     extraction_status = "SUCCESS"
     extraction_attempts = 1
     extraction_error = ""
-    rescue_reason = ""
 
     try:
         extraction = _run_extraction(messages)
@@ -1782,18 +1559,18 @@ PAPER:
     target_virus_names = [virus]
     target_virus_names.extend(virus_aliases)
 
-    rescue_reason = _extraction_rescue_reason(
+    needs_rescue = _extraction_needs_rescue(
         extraction,
         evidence_source,
-        virus,
         target_virus_names,
     )
 
-    if rescue_reason:
+    if needs_rescue:
         extraction_attempts = 2
+
         print(
-            "Evidence extraction needs rescue: "
-            f"{rescue_reason}"
+            "Evidence extraction was empty/incomplete. "
+            "Running focused rescue extraction."
         )
 
         try:
@@ -1806,25 +1583,12 @@ PAPER:
                 abstract,
                 host_context,
                 virus_context,
-                rescue_reason,
             )
 
-            second_reason = _extraction_rescue_reason(
+            if _extraction_needs_rescue(
                 rescue,
                 evidence_source,
-                virus,
                 target_virus_names,
-            )
-
-            # A non-empty rescue is still useful even if it has a residual
-            # role warning; the deterministic edge verifier will fail closed.
-            if not any(
-                str(rescue.get(field) or "").strip()
-                for field in (
-                    "study_host",
-                    "host_virus_name",
-                    "comparison_virus_name",
-                )
             ):
                 extraction_status = "FAILED"
                 extraction_error = (
@@ -1836,24 +1600,16 @@ PAPER:
                 extraction_status = "RESCUED"
                 extraction_error = ""
                 extraction = rescue
-                if second_reason:
-                    extraction["residual_rescue_warning"] = second_reason
 
         except Exception as error:
             extraction_status = "FAILED"
             extraction_error = str(error)
             cleanup_gpu()
 
-    # Deterministically replace model-generated quotations with exact source
-    # spans. This fixes quote-verification failures without changing entity
-    # roles or inventing evidence.
-    extraction = _ground_extraction_passages(
-        extraction,
-        evidence_source,
-        host_aliases,
-        virus,
-        virus_aliases,
-    )
+            if not extraction:
+                extraction = _empty_extraction(
+                    f"Rescue extraction failed: {error}"
+                )
 
     classification = classify_relationship(
         extraction,
@@ -1878,7 +1634,6 @@ PAPER:
     extraction["extraction_status"] = extraction_status
     extraction["extraction_attempts"] = extraction_attempts
     extraction["extraction_error"] = extraction_error
-    extraction["rescue_reason"] = rescue_reason
 
     extraction["title"] = paper.get("title")
     extraction["pmid"] = paper.get("pmid")
@@ -1893,7 +1648,10 @@ PAPER:
     )
 
     if classification == "EXACT_SUPPORT":
-        supporting_quote = extraction.get("host_virus_passage", "")
+        supporting_quote = extraction.get(
+            "host_virus_passage",
+            "",
+        )
     else:
         supporting_quote = extraction.get(
             "comparison_relationship_passage",
