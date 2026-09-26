@@ -2,108 +2,20 @@ import json
 import re
 import sys
 
-from evidence_agent import (
-    run_evidence_agent
-)
+from evidence_semantics import decide, retrieval_sufficient
 
-from search_agent import (
-    generate_text,
-    cleanup_gpu
-)
+
+def run_evidence_agent(*args, **kwargs):
+    from evidence_agent import run_evidence_agent as run
+    return run(*args, **kwargs)
 
 
 # ============================================================
 # RETRIEVAL SUFFICIENCY
 # ============================================================
 
-def retrieval_sufficient(
-    search_metadata
-):
-
-    successes = (
-        search_metadata.get(
-            "source_successes",
-            0
-        )
-    )
-
-    # At least two successful database calls is enough
-    # for the benchmark to distinguish "no support"
-    # from a total retrieval failure.
-    return successes >= 2
-
-
-# ============================================================
-# FINAL STATUS
-# ============================================================
-
-def determine_final_status(
-    evidence_results,
-    search_metadata
-):
-
-    classes = [
-        result.get(
-            "classification"
-        )
-        for result
-        in evidence_results
-    ]
-
-    if "EXACT_SUPPORT" in classes:
-
-        return "KNOWN"
-
-    if (
-        "TARGET_HOST_RELATED"
-        in classes
-    ):
-
-        return "POSSIBLY_KNOWN"
-
-    # UNCLEAR now represents genuine local ambiguity,
-    # not merely absence of evidence.
-    if "UNCLEAR" in classes:
-
-        return "UNCLEAR"
-
-    # These classes do NOT provide evidence for the
-    # target host-virus interaction.
-    non_support_classes = {
-        "VIRUS_OTHER_HOST",
-        "MENTION_ONLY",
-        "NO_SUPPORT"
-    }
-
-    if not evidence_results:
-
-        if retrieval_sufficient(
-            search_metadata
-        ):
-            return (
-                "NO_EVIDENCE_FOUND"
-            )
-
-        return "UNCLEAR"
-
-    if all(
-        evidence_class
-        in non_support_classes
-        for evidence_class
-        in classes
-    ):
-
-        if retrieval_sufficient(
-            search_metadata
-        ):
-
-            return (
-                "NO_EVIDENCE_FOUND"
-            )
-
-        return "UNCLEAR"
-
-    return "UNCLEAR"
+def determine_final_status(evidence_results, search_metadata):
+    return decide(evidence_results, search_metadata)["literature_status"]
 
 
 # ============================================================
@@ -305,20 +217,9 @@ def judge_interaction(
     search_metadata
 ):
 
-    final_status = (
-        determine_final_status(
-            evidence_results,
-            search_metadata
-        )
-    )
-
-    reason = build_reason(
-        host,
-        virus,
-        evidence_results,
-        final_status,
-        search_metadata
-    )
+    decision = decide(evidence_results, search_metadata)
+    final_status = decision["literature_status"]
+    reason = decision["reason"]
 
     exact_supporting_papers = []
 
@@ -383,100 +284,15 @@ def judge_interaction(
                 paper
             )
 
-    confidence = (
-        default_confidence(
-            final_status,
-            search_metadata
-        )
-    )
-
-    strongest_evidence = ""
-
-    # LLM only summarizes.
-    # It does NOT control status or reason.
-    if evidence_results:
-
-        summary = (
-            build_evidence_summary(
-                evidence_results
-            )
-        )
-
-        messages = [
-            {
-                "role": "system",
-                "content": """
-You are a scientific evidence summarizer.
-
-The final classification has already been determined
-by Python rules.
-
-Do not change it.
-
-Select the single strongest verified evidence passage
-from the supplied results.
-
-Do not invent evidence.
-
-Return ONLY JSON:
-
-{
-    "strongest_evidence": "..."
-}
-"""
-            },
-            {
-                "role": "user",
-                "content": f"""
-HOST:
-{host}
-
-VIRUS:
-{virus}
-
-FINAL STATUS:
-{final_status}
-
-EVIDENCE:
-{summary}
-"""
-            }
-        ]
-
-        try:
-
-            response = generate_text(
-                messages,
-                max_new_tokens=150,
-                max_input_tokens=3000
-            )
-
-            match = re.search(
-                r"\{.*\}",
-                response,
-                re.DOTALL
-            )
-
-            if match:
-
-                judge_output = (
-                    json.loads(
-                        match.group()
-                    )
-                )
-
-                strongest_evidence = (
-                    judge_output.get(
-                        "strongest_evidence",
-                        ""
-                    )
-                )
-
-        except Exception:
-
-            cleanup_gpu()
+    confidence = decision["confidence"]
+    strongest_evidence = next((r["structured_evidence"]["supporting_text"]
+                               for r in evidence_results
+                               if r.get("structured_evidence", {}).get("verified")), "")
 
     return {
+        "classification": decision["classification"],
+        "evidence_results": evidence_results,
+        "search_metadata": search_metadata,
         "host":
             host,
 

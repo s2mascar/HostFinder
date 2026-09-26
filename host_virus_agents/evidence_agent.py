@@ -2,26 +2,76 @@ import json
 import re
 import sys
 
-from search_agent import (
-    run_search_agent,
-    generate_text,
-    cleanup_gpu
-)
+from evidence_semantics import classify as classify_relationship, entity_equal, role_conflict
 
-from taxonomy_aliases import (
-    get_host_aliases,
-    text_contains_alias,
-    name_matches_host
-)
 
-from bioresearch_env.biological_context_agent import (
-    run_biological_context_agent,
-    context_for_prompt
-)
+# Keep deterministic verification importable without loading a model or network
+# packages. The live pipeline still uses the same implementations.
+def run_search_agent(*args, **kwargs):
+    from search_agent import run_search_agent as run
+    return run(*args, **kwargs)
 
-from bioresearch_env.virus_taxonomy_agent import (
-    get_virus_taxonomy_context,
-)
+
+def generate_text(*args, **kwargs):
+    from search_agent import generate_text as run
+    return run(*args, **kwargs)
+
+
+def cleanup_gpu():
+    from search_agent import cleanup_gpu as run
+    return run()
+
+
+def get_host_aliases(*args, **kwargs):
+    from taxonomy_aliases import get_host_aliases as run
+    return run(*args, **kwargs)
+
+
+def text_contains_alias(*args, **kwargs):
+    from taxonomy_aliases import text_contains_alias as run
+    return run(*args, **kwargs)
+
+
+def name_matches_host(*args, **kwargs):
+    from taxonomy_aliases import name_matches_host as run
+    return run(*args, **kwargs)
+
+
+def run_biological_context_agent(*args, **kwargs):
+    from bioresearch_env.biological_context_agent import run_biological_context_agent as run
+    return run(*args, **kwargs)
+
+
+def context_for_prompt(*args, **kwargs):
+    from bioresearch_env.biological_context_agent import context_for_prompt as run
+    return run(*args, **kwargs)
+
+
+def get_virus_taxonomy_context(*args, **kwargs):
+    from bioresearch_env.virus_taxonomy_agent import get_virus_taxonomy_context as run
+    return run(*args, **kwargs)
+
+
+def get_pair_taxonomy(host, virus):
+    """Resolve identity separately from the historical biological prior cache."""
+    from bioresearch_env.biological_context_agent import get_taxonomy_context
+    errors = []
+    try:
+        host_record = get_taxonomy_context(host)
+    except Exception as error:
+        host_record = {}
+        errors.append("Host taxonomy: " + str(error))
+    try:
+        virus_record = get_virus_taxonomy_context(virus)
+    except Exception as error:
+        virus_record = {}
+        errors.append("Virus taxonomy: " + str(error))
+    return {
+        "host": host_record, "virus": virus_record, "errors": errors,
+        "resolved": bool(host_record.get("tax_id") and host_record.get("exact_name_match")
+                         and host_record.get("rank") == "species"
+                         and virus_record.get("resolved") and virus_record.get("rank") not in {"genus", "family", "order"}),
+    }
 
 from bioresearch_env.relationship_language import (
     has_direct_interaction_language,
@@ -100,45 +150,7 @@ def same_virus(
     This deliberately does not infer equivalence from family/genus alone.
     """
 
-    reported_norm = normalize_entity(reported)
-
-    if not reported_norm:
-        return False
-
-    candidate_names = [target]
-    candidate_names.extend(target_aliases or [])
-
-    seen = set()
-
-    for candidate in candidate_names:
-        candidate_norm = normalize_entity(candidate)
-
-        if (
-            not candidate_norm
-            or candidate_norm in seen
-        ):
-            continue
-
-        seen.add(candidate_norm)
-
-        if reported_norm == candidate_norm:
-            return True
-
-        # Allow a canonical name followed by descriptive text. Keep the
-        # threshold reasonably long so generic names do not over-match.
-        if (
-            len(candidate_norm) >= 8
-            and candidate_norm in reported_norm
-        ):
-            return True
-
-        if (
-            len(reported_norm) >= 8
-            and reported_norm in candidate_norm
-        ):
-            return True
-
-    return False
+    return entity_equal(reported, target, target_aliases)
 
 
 def text_contains_any_name(
@@ -556,7 +568,7 @@ def _normalize_comparison_relationship_type(value, passage=""):
 
     return value
 
-def classify_relationship(
+def _legacy_classify_relationship_v06(
     extraction,
     host_aliases,
     target_virus,
@@ -1174,6 +1186,9 @@ def _extraction_rescue_reason(
     """Return a short rescue reason, or an empty string if no rescue is needed."""
 
     extraction = extraction or {}
+    conflict = role_conflict(extraction)
+    if conflict:
+        return conflict
 
     core_fields = [
         extraction.get("study_host"),
@@ -1230,7 +1245,13 @@ def _run_extraction(messages, max_new_tokens=500):
         max_new_tokens=max_new_tokens,
         max_input_tokens=MAX_INPUT_TOKENS,
     )
-    return _extract_json_object(response)
+    try:
+        result = _extract_json_object(response)
+    except Exception as error:
+        error.raw_response = response
+        raise
+    result["raw_model_response"] = response
+    return result
 
 
 def _flexible_name_matches(text, name):
@@ -1242,9 +1263,9 @@ def _flexible_name_matches(text, name):
     if not tokens:
         return []
 
-    pattern = r"(?<!\\w)" + r"[\\W_]+".join(
+    pattern = r"(?<!\w)" + r"[\W_]+".join(
         re.escape(token) for token in tokens
-    ) + r"(?!\\w)"
+    ) + r"(?!\w)"
 
     return list(
         re.finditer(
@@ -1661,6 +1682,16 @@ TARGET-VIRUS CONTEXT:
 
     system_prompt = """
 You are a scientific evidence extraction agent.
+Extract a complete literal assertion binding subject host, predicate and object
+virus. A name fragment is not an assertion. Preserve other hosts and other
+viruses; never swap comparison endpoints to make them fit the target.
+Report host_scope and virus_scope as SPECIES, GENUS, FAMILY or UNRESOLVED.
+For cross-passage discovery report shared_specimen only if BOTH quotations
+explicitly identify the same named specimen collected from the stated host.
+General virome study context, environmental source, exposure to viral proteins,
+sequence similarity, and references to earlier work are not exact support.
+Do not guess an omitted full scientific name from an ambiguous abbreviation.
+
 You extract evidence; you do NOT make the final classification.
 
 Separate TWO relations:
@@ -1725,6 +1756,9 @@ to Homo sapiens. A human cell line by itself is not natural-host evidence.
 Return ONLY JSON:
 {
     "study_host": "...",
+    "host_scope": "SPECIES|GENUS|FAMILY|UNRESOLVED",
+    "virus_scope": "SPECIES|GENUS|FAMILY|UNRESOLVED",
+    "shared_specimen": "literal specimen identifier or empty string",
     "study_host_passage": "...",
     "host_virus_name": "...",
     "host_virus_passage": "...",
@@ -1770,14 +1804,17 @@ PAPER:
     extraction_attempts = 1
     extraction_error = ""
     rescue_reason = ""
+    extraction_trace = []
 
     try:
         extraction = _run_extraction(messages)
+        extraction_trace.append({"attempt": "primary", "output": dict(extraction)})
     except Exception as error:
         extraction = _empty_extraction(
             f"Primary extraction failed: {error}"
         )
         extraction_error = str(error)
+        extraction_trace.append({"attempt": "primary", "error": str(error), "raw_response": getattr(error, "raw_response", None)})
 
     target_virus_names = [virus]
     target_virus_names.extend(virus_aliases)
@@ -1788,6 +1825,12 @@ PAPER:
         virus,
         target_virus_names,
     )
+    if not rescue_reason:
+        preview = dict(extraction)
+        if classify_relationship(preview, host_aliases, virus, evidence_source,
+                                 biological_context=biological_context,
+                                 virus_aliases=virus_aliases) == "UNCLEAR":
+            rescue_reason = "UNBOUND_DIRECTED_ASSERTION: " + preview["classification_basis"]
 
     if rescue_reason:
         extraction_attempts = 2
@@ -1815,6 +1858,7 @@ PAPER:
                 virus,
                 target_virus_names,
             )
+            extraction_trace.append({"attempt": "rescue", "output": dict(rescue), "residual_warning": second_reason})
 
             # A non-empty rescue is still useful even if it has a residual
             # role warning; the deterministic edge verifier will fail closed.
@@ -1842,18 +1886,18 @@ PAPER:
         except Exception as error:
             extraction_status = "FAILED"
             extraction_error = str(error)
+            extraction_trace.append({"attempt": "rescue", "error": str(error), "raw_response": getattr(error, "raw_response", None)})
             cleanup_gpu()
 
-    # Deterministically replace model-generated quotations with exact source
-    # spans. This fixes quote-verification failures without changing entity
-    # roles or inventing evidence.
-    extraction = _ground_extraction_passages(
-        extraction,
-        evidence_source,
-        host_aliases,
-        virus,
-        virus_aliases,
-    )
+    # Preserve proposed quotations and roles. Invalid quotations are uncertainty;
+    # the verifier expands only literal source spans within assertion boundaries.
+    extraction["extraction_status"] = extraction_status
+    extraction["extraction_error"] = extraction_error
+    extraction["virus_taxonomy_resolved"] = virus_taxonomy.get("resolved", False)
+    extraction["evidence_source"] = evidence_source
+    extraction["source_paper"] = dict(paper)
+    extraction["virus_taxonomy"] = virus_taxonomy
+    extraction["extraction_trace"] = extraction_trace
 
     classification = classify_relationship(
         extraction,
@@ -1941,6 +1985,8 @@ def run_evidence_agent(
             "search_metadata"
         ]
     )
+    search_metadata["taxonomy_resolution"] = get_pair_taxonomy(host, virus)
+    search_metadata["taxonomy_resolved"] = search_metadata["taxonomy_resolution"]["resolved"]
 
     host_aliases = (
         search_result.get(

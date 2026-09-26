@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from evidence_agent import analyze_paper
+from evidence_agent import analyze_paper, get_pair_taxonomy
 
 from literature_search import (
     merge_papers,
@@ -116,6 +116,8 @@ class BioResearchEnv:
             "retrieval_complete": True,
             "host_aliases": self.host_aliases,
         }
+        self.search_metadata["taxonomy_resolution"] = get_pair_taxonomy(self.host, self.virus)
+        self.search_metadata["taxonomy_resolved"] = self.search_metadata["taxonomy_resolution"]["resolved"]
 
         self.history = []
 

@@ -139,7 +139,7 @@ def get_taxonomy_context(name):
     chosen = None
     exact_match = False
 
-    for taxon in root.findall(".//Taxon"):
+    for taxon in root.findall("./Taxon"):
         scientific_name = (
             taxon.findtext("ScientificName")
             or ""
@@ -151,7 +151,7 @@ def get_taxonomy_context(name):
             break
 
     if chosen is None:
-        chosen = root.find(".//Taxon")
+        return empty_taxonomy_context(name)
 
     if chosen is None:
         return empty_taxonomy_context(name)

@@ -14,7 +14,7 @@ from literature_search import (
 )
 
 
-CACHE_FILE = "host_alias_cache.json"
+CACHE_FILE = os.environ.get("HOST_ALIAS_CACHE", "host_alias_cache_correctness.json")
 MAX_RETRIES = 4
 
 
@@ -257,7 +257,7 @@ def fetch_taxonomy_aliases(
 
     # Prefer an exact scientific-name match.
     for taxon in root.findall(
-        ".//Taxon"
+        "./Taxon"
     ):
 
         scientific_name = (
@@ -268,21 +268,19 @@ def fetch_taxonomy_aliases(
         )
 
         if (
-            normalize_name(
-                scientific_name
-            )
-            == target_norm
+            target_norm in {normalize_name(scientific_name), *(
+                normalize_name(node.text or "")
+                for tag in ("Synonym", "EquivalentName", "GenbankSynonym", "CommonName", "GenbankCommonName")
+                for node in taxon.findall("OtherNames/" + tag)
+            )}
         ):
 
             chosen_taxon = taxon
             break
 
-    # Otherwise use the first result.
+    # An unmatched search hit is not an alias resolution.
     if chosen_taxon is None:
-
-        chosen_taxon = root.find(
-            ".//Taxon"
-        )
+        return [host]
 
     if chosen_taxon is None:
 
@@ -337,7 +335,7 @@ def fetch_taxonomy_aliases(
             "EquivalentName",
             "GenbankCommonName",
             "CommonName",
-            "Includes"
+            "GenbankSynonym"
         }
 
         for child in other_names:

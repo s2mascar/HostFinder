@@ -8,7 +8,7 @@ from taxonomy_aliases import ncbi_get, normalize_name
 
 CACHE_FILE = os.environ.get(
     "VIRUS_TAXONOMY_CACHE",
-    "virus_taxonomy_cache_v06.json",
+    "virus_taxonomy_cache_correctness.json",
 )
 
 
@@ -72,7 +72,6 @@ def _all_name_texts(taxon):
             "EquivalentName",
             "GenbankCommonName",
             "CommonName",
-            "Includes",
             "Acronym",
             "GenbankSynonym",
         }
@@ -179,6 +178,9 @@ def _fetch_by_tax_id(tax_id, query):
     root = ET.fromstring(response.text)
     taxon = root.find(".//Taxon")
 
+    if taxon is not None and normalize_name(query) not in {normalize_name(n) for n in _all_name_texts(taxon)}:
+        return _parse_taxon(None, query)
+
     return _parse_taxon(
         taxon,
         query,
@@ -225,7 +227,7 @@ def _fetch_by_name(query):
     chosen = None
 
     # Prefer a scientific-name OR synonym match to the query.
-    for taxon in root.findall(".//Taxon"):
+    for taxon in root.findall("./Taxon"):
         candidate_names = _all_name_texts(taxon)
 
         if any(
@@ -236,7 +238,7 @@ def _fetch_by_name(query):
             break
 
     if chosen is None:
-        chosen = root.find(".//Taxon")
+        return _parse_taxon(None, query)
 
     return _parse_taxon(chosen, query)
 

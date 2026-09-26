@@ -144,6 +144,8 @@ class BaselineResearchAgent:
             "confidence",
             "",
         )
+        info["classification"] = judge_result["classification"]
+        info["judge_diagnostics"] = judge_result
 
         info["reason"] = judge_result.get(
             "reason",
