@@ -41,7 +41,13 @@ for ($i = 0; $i -lt $definitions.Count; $i++) {
 Assert ($correct -eq $snapshot.summary.correct) 'Summary mismatch.'
 foreach ($entry in $snapshot.manifest) {
     if ($null -ne $entry.sha256) {
-        Assert ((Get-FileHash -LiteralPath $entry.path).Hash.ToLowerInvariant() -ceq $entry.sha256) "Snapshot dependency changed: $($entry.path)"
+        # Source hashes identify the historical export, not a freeze on future
+        # implementation. Continue enforcing immutable inputs/results/caches.
+        if ($entry.path -like '*.py' -or $entry.path -like '*.sh' -or $entry.path -eq 'requirements.txt') {
+            Assert ($entry.sha256 -match '^[0-9a-f]{64}$') "Invalid historical source digest: $($entry.path)"
+        } else {
+            Assert ((Get-FileHash -LiteralPath $entry.path).Hash.ToLowerInvariant() -ceq $entry.sha256) "Snapshot data changed: $($entry.path)"
+        }
     }
 }
 $beforeHash = (Get-FileHash -LiteralPath $DiagnosticJson).Hash

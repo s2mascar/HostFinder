@@ -52,6 +52,52 @@ class IntegrationTests(unittest.TestCase):
         # verifier must not cherry-pick a later occurrence for that fragment.
         self.assertEqual(repair.call_count, 1)
 
+    def test_reversed_comparison_requires_model_reextraction(self):
+        from evidence_agent import analyze_paper
+        text = "Other virus was detected in Example animal. Other virus is similar to Example virus 1."
+        primary = dict(study_host="Example animal", host_virus_name="Example virus 1",
+                       host_virus_relationship_type="DETECTED_IN", host_virus_passage=text,
+                       comparison_source_virus_name="Example virus 1", comparison_virus_name="Other virus",
+                       comparison_relationship_passage="Other virus is similar to Example virus 1.")
+        rescue = dict(primary, host_virus_name="Other virus", comparison_source_virus_name="Other virus", comparison_virus_name="Example virus 1")
+        with patch("evidence_agent.get_virus_taxonomy_context", return_value={"aliases": [], "resolved": True}), \
+             patch("evidence_agent._run_extraction", return_value=primary), \
+             patch("evidence_agent._run_rescue_extraction", return_value=rescue) as repair, \
+             patch("evidence_agent.cleanup_gpu"):
+            result = analyze_paper("Example animal", ["Example animal"], "Example virus 1", {"title": "Discovery", "abstract": text})
+        self.assertEqual(repair.call_count, 1)
+        self.assertEqual(result["classification"], "TARGET_HOST_RELATED")
+        self.assertEqual(result["extraction_trace"][0]["output"]["host_virus_name"], "Example virus 1")
+        self.assertEqual(result["extraction_trace"][1]["output"]["host_virus_name"], "Other virus")
+
+    def test_full_source_failed_extraction_can_be_independently_rejected(self):
+        from evidence_agent import analyze_paper
+        text = "Other virus was detected in Different animal."
+        with patch("evidence_agent.get_virus_taxonomy_context", return_value={"aliases": [], "resolved": True}), \
+             patch("evidence_agent.generate_text", side_effect=RuntimeError("model failed")) as model, \
+             patch("evidence_agent.cleanup_gpu"):
+            result = analyze_paper("Example animal", ["Example animal"], "Example virus 1", {"title": "Discovery", "full_text": text})
+        self.assertEqual(result["extraction_status"], "FAILED")
+        self.assertEqual(result["evidence_state"], "IRRELEVANT_OR_REJECTED")
+        self.assertEqual(model.call_count, 1)
+
+    def test_judge_summary_prefers_exact_over_other_host(self):
+        from evidence_agent import classify_relationship
+        from judge_agent import judge_interaction
+        papers = []
+        for host in ("Different animal", "Example animal"):
+            text = f"Example virus 1 was detected in {host}."
+            e = dict(study_host=host, host_virus_name="Example virus 1", host_virus_passage=text)
+            classify_relationship(e, ["Example animal"], "Example virus 1", text)
+            papers.append(e)
+        result = judge_interaction("Example animal", "Example virus 1", papers, {"taxonomy_resolved": True})
+        self.assertEqual(result["strongest_evidence"], papers[1]["structured_evidence"]["supporting_text"])
+
+    def test_judge_paper_list_does_not_trust_label_alone(self):
+        from judge_agent import judge_interaction
+        result = judge_interaction("Example animal", "Example virus 1", [{"classification": "EXACT_SUPPORT"}], {"taxonomy_resolved": True})
+        self.assertEqual(result["exact_supporting_papers"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

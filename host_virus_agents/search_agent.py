@@ -39,7 +39,7 @@ from bioresearch_env.relationship_language import (
 # SETTINGS
 # ============================================================
 
-MODEL_PATH = "./models/Qwen3-8B"
+MODEL_PATH = os.environ.get("MODEL_PATH", "./models/Qwen3-8B")
 
 MAX_SEARCH_QUERIES = 3
 MAX_RESULTS_PER_SOURCE = 5
@@ -1112,6 +1112,7 @@ def run_search_agent(
     all_papers = []
 
     metadata = {
+        "queries_attempted": [],
         "queries_planned":
             len(queries),
 
@@ -1169,6 +1170,8 @@ def run_search_agent(
         metadata[
             "queries_executed"
         ] += 1
+        metadata["queries_attempted"].append({"query": query, "source_status": statuses,
+                                              "retrieved_papers": papers})
 
         for status in statuses:
 
@@ -1350,3 +1353,9 @@ if __name__ == "__main__":
                 "pmcid"
             )
         )
+        print("GENERATION_TRACE " + json.dumps({
+            "model_path": MODEL_PATH, "device": str(model.device), "dtype": str(DTYPE),
+            "input_tokens": input_length, "max_input_tokens": max_input_tokens,
+            "max_new_tokens": max_new_tokens, "do_sample": False,
+            "effective_input": tokenizer.decode(inputs["input_ids"][0], skip_special_tokens=False),
+        }, ensure_ascii=False))

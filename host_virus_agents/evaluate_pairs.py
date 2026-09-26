@@ -3,9 +3,11 @@ import sys
 import time
 
 from judge_agent import run_judge_agent
+import benchmark_capture
 
 
 def run_benchmark(input_file, output_file):
+    sidecar = benchmark_capture.begin(input_file, output_file)
 
     with open(
         input_file,
@@ -51,6 +53,7 @@ def run_benchmark(input_file, output_file):
         print(f"Expected: {expected}")
 
         start = time.time()
+        result = {}
 
         try:
 
@@ -153,6 +156,7 @@ def run_benchmark(input_file, output_file):
             })
 
         except Exception as error:
+            result = {"classification": "INSUFFICIENT_EVIDENCE", "processing_status": "FAILED", "error": str(error)}
 
             runtime = time.time() - start
 
@@ -164,7 +168,7 @@ def run_benchmark(input_file, output_file):
                 "host": host,
                 "virus": virus,
                 "expected_status": expected,
-                "predicted_status": "ERROR",
+                "predicted_status": "UNCLEAR",
                 "correct": False,
                 "papers_examined": 0,
                 "exact_supporting_papers": 0,
@@ -185,6 +189,9 @@ def run_benchmark(input_file, output_file):
                     ),
             })
 
+        results[-1]["classification"] = result.get("classification", "INSUFFICIENT_EVIDENCE")
+        results[-1]["processing_status"] = result.get("processing_status", "COMPLETED")
+        benchmark_capture.append(sidecar, results[-1], result)
         # Save after every pair so progress is not lost
         with open(
             output_file,

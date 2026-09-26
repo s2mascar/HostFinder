@@ -2,7 +2,7 @@ import json
 import re
 import sys
 
-from evidence_semantics import decide, retrieval_sufficient
+from evidence_semantics import decide, retrieval_sufficient, is_exact_support, is_related_support
 
 
 def run_evidence_agent(*args, **kwargs):
@@ -257,19 +257,13 @@ def judge_interaction(
             )
         )
 
-        if (
-            classification
-            == "EXACT_SUPPORT"
-        ):
+        if is_exact_support(result):
 
             exact_supporting_papers.append(
                 paper
             )
 
-        elif (
-            classification
-            == "TARGET_HOST_RELATED"
-        ):
+        elif is_related_support(result):
 
             related_papers.append(
                 paper
@@ -285,12 +279,13 @@ def judge_interaction(
             )
 
     confidence = decision["confidence"]
-    strongest_evidence = next((r["structured_evidence"]["supporting_text"]
-                               for r in evidence_results
-                               if r.get("structured_evidence", {}).get("verified")), "")
+    supporting = ([r for r in evidence_results if is_exact_support(r)]
+                  or [r for r in evidence_results if is_related_support(r)])
+    strongest_evidence = supporting[0]["structured_evidence"]["supporting_text"] if supporting else ""
 
     return {
         "classification": decision["classification"],
+        "confidence_factors": decision["confidence_factors"],
         "evidence_results": evidence_results,
         "search_metadata": search_metadata,
         "host":

@@ -1186,7 +1186,7 @@ def _extraction_rescue_reason(
     """Return a short rescue reason, or an empty string if no rescue is needed."""
 
     extraction = extraction or {}
-    conflict = role_conflict(extraction)
+    conflict = role_conflict(extraction, evidence_source)
     if conflict:
         return conflict
 
@@ -1239,7 +1239,7 @@ def _extraction_rescue_reason(
     return ""
 
 
-def _run_extraction(messages, max_new_tokens=500):
+def _run_extraction(messages, max_new_tokens=1000):
     response = generate_text(
         messages,
         max_new_tokens=max_new_tokens,
@@ -1251,6 +1251,7 @@ def _run_extraction(messages, max_new_tokens=500):
         error.raw_response = response
         raise
     result["raw_model_response"] = response
+    result["extraction_messages"] = messages
     return result
 
 
@@ -1560,12 +1561,19 @@ DIFFERENT_HOST
 NO_RELATION
 UNCLEAR
 
-Do not invent passages. The Python verifier will ground exact source spans
-separately, so prioritize correct ENTITY ROLES and RELATIONSHIP TYPES.
+Return complete verbatim assertions, not isolated names. Keep adjacent sentences
+when an explicit specimen or virus-naming link crosses the boundary. Never
+invent missing linkage. Resolve local acronyms only from their definitions.
+For a self-comparison or reversal, reread both endpoint spans independently.
+Use empty comparison fields if no independent comparison exists. Do not copy
+the target into both endpoints. Host and comparison assertions remain separate.
 
 Return ONLY JSON:
 {
   "study_host": "...",
+  "host_scope": "SPECIES",
+  "virus_scope": "SPECIES",
+  "shared_specimen": "",
   "study_host_passage": "...",
   "host_virus_name": "...",
   "host_virus_passage": "...",
@@ -1613,7 +1621,7 @@ TARGET VIRUS CONTEXT:
             {"role": "system", "content": rescue_system_prompt},
             {"role": "user", "content": rescue_user_prompt},
         ],
-        max_new_tokens=500,
+        max_new_tokens=1000,
     )
 
 
@@ -1669,6 +1677,9 @@ HOST/STUDY CONTEXT:
 TARGET-VIRUS CONTEXT:
 {virus_context}
 """
+    # Verify against the actual contiguous body/abstract, not concatenated
+    # overlapping prompt snippets. Titles alone cannot establish an edge.
+    verification_source = full_text or abstract
 
     aliases_text = "\n".join(f"- {alias}" for alias in host_aliases)
     virus_aliases_text = "\n".join(
@@ -1750,8 +1761,8 @@ mentions the host and virus in unrelated sections cannot.
 BIOLOGICAL CONTEXT is a PRIOR only, never evidence.
 VALIDATED TARGET-VIRUS ALIASES are entity-resolution hints only.
 
-For Homo sapiens, clearly human patients/clinical specimens may normalize
-to Homo sapiens. A human cell line by itself is not natural-host evidence.
+Normalize clinical specimens only when their organism identity is explicit.
+A cell line by itself is not evidence of a natural biological host.
 
 Return ONLY JSON:
 {
@@ -1814,6 +1825,7 @@ PAPER:
             f"Primary extraction failed: {error}"
         )
         extraction_error = str(error)
+        extraction_status = "FAILED"
         extraction_trace.append({"attempt": "primary", "error": str(error), "raw_response": getattr(error, "raw_response", None)})
 
     target_virus_names = [virus]
@@ -1825,12 +1837,15 @@ PAPER:
         virus,
         target_virus_names,
     )
-    if not rescue_reason:
-        preview = dict(extraction)
-        if classify_relationship(preview, host_aliases, virus, evidence_source,
-                                 biological_context=biological_context,
-                                 virus_aliases=virus_aliases) == "UNCLEAR":
-            rescue_reason = "UNBOUND_DIRECTED_ASSERTION: " + preview["classification_basis"]
+    preview = dict(extraction, extraction_status=extraction_status,
+                   evidence_source_complete=bool(full_text) and not paper.get("full_text_truncated", False))
+    preview_class = classify_relationship(preview, host_aliases, virus, verification_source,
+                                          biological_context=biological_context,
+                                          virus_aliases=virus_aliases)
+    if preview.get("evidence_state") == "IRRELEVANT_OR_REJECTED":
+        rescue_reason = ""
+    elif not rescue_reason and (preview_class == "UNCLEAR" or preview.get("evidence_state") == "MATERIAL_UNRESOLVED"):
+        rescue_reason = "UNBOUND_DIRECTED_ASSERTION: " + preview["classification_basis"]
 
     if rescue_reason:
         extraction_attempts = 2
@@ -1895,6 +1910,8 @@ PAPER:
     extraction["extraction_error"] = extraction_error
     extraction["virus_taxonomy_resolved"] = virus_taxonomy.get("resolved", False)
     extraction["evidence_source"] = evidence_source
+    extraction["verification_source"] = verification_source
+    extraction["evidence_source_complete"] = bool(full_text) and not paper.get("full_text_truncated", False)
     extraction["source_paper"] = dict(paper)
     extraction["virus_taxonomy"] = virus_taxonomy
     extraction["extraction_trace"] = extraction_trace
@@ -1903,7 +1920,7 @@ PAPER:
         extraction,
         host_aliases,
         virus,
-        evidence_source,
+        verification_source,
         biological_context=biological_context,
         virus_aliases=virus_aliases,
     )
@@ -1929,6 +1946,12 @@ PAPER:
     extraction["pmcid"] = paper.get("pmcid")
     extraction["doi"] = paper.get("doi")
     extraction["sources"] = paper.get("sources", [])
+    edge = extraction["structured_evidence"]
+    edge.update(paper_id=paper.get("paper_id"), pmid=paper.get("pmid"), pmcid=paper.get("pmcid"),
+                doi=paper.get("doi"), source=paper.get("sources", []),
+                virus_taxid=virus_taxonomy.get("tax_id") if edge["target_virus_binding"] == "TARGET_VIRUS" else None,
+                host_taxid=(biological_context or {}).get("target_host", {}).get("tax_id") if edge["target_host_binding"] == "TARGET_HOST" else None,
+                source_sha256=extraction["materiality"]["source_sha256"])
 
     extraction["biological_prior"] = (
         (biological_context or {})

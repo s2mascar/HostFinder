@@ -150,6 +150,22 @@ class AggregationTests(unittest.TestCase):
     def test_partial_success_is_incomplete(self):
         self.assertEqual(decide([], dict(self.complete, queries_planned=3, queries_executed=2))["literature_status"], "UNCLEAR")
 
+    def test_exact_confidence_reports_limitations(self):
+        text = "Example virus 1 was detected in Example animal."
+        e = dict(study_host="Example animal", host_virus_name="Example virus 1", host_virus_passage=text)
+        classify(e, ["Example animal"], "Example virus 1", text)
+        result = decide([e], {"taxonomy_resolved": True})
+        self.assertEqual(result["classification"], "KNOWN")
+        self.assertEqual(result["confidence"], "LOW")
+        self.assertFalse(result["confidence_factors"]["search_complete"])
+
+    def test_invalid_structured_scope_not_accepted(self):
+        text = "Example virus 1 was detected in Example animal."
+        e = dict(study_host="Example animal", host_virus_name="Example virus 1", host_virus_passage=text)
+        classify(e, ["Example animal"], "Example virus 1", text)
+        e["structured_evidence"]["evidence_scope"] = "ENVIRONMENTAL_ASSOCIATION"
+        self.assertNotEqual(decide([e], self.complete)["classification"], "KNOWN")
+
 
 if __name__ == "__main__":
     unittest.main()

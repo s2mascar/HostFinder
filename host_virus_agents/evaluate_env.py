@@ -3,14 +3,16 @@ import json
 import statistics
 import sys
 import time
+import benchmark_capture
 
-from bioresearch_env.env import (
-    BioResearchEnv,
-)
+def BioResearchEnv(*args, **kwargs):
+    from bioresearch_env.env import BioResearchEnv as environment
+    return environment(*args, **kwargs)
 
-from bioresearch_env.baseline_agent import (
-    BaselineResearchAgent,
-)
+
+def BaselineResearchAgent(*args, **kwargs):
+    from bioresearch_env.baseline_agent import BaselineResearchAgent as agent
+    return agent(*args, **kwargs)
 
 
 # ============================================================
@@ -188,6 +190,9 @@ def summarize_evidence(analyzed_results):
             verified_comparison_edges += 1
 
         paper_diagnostics.append({
+            "structured_evidence": result.get("structured_evidence"),
+            "materiality": result.get("materiality"),
+            "evidence_state": result.get("evidence_state"),
             "paper_id": paper_id,
             "title": result.get("title"),
             "pmid": result.get("pmid"),
@@ -287,6 +292,7 @@ def run_environment_benchmark(
     print("=" * 80)
     print(f"Episodes: {len(tasks)}")
 
+    sidecar = benchmark_capture.begin(input_file, output_file)
     results = []
     benchmark_start = time.time()
 
@@ -305,6 +311,8 @@ def run_environment_benchmark(
         print(f"Virus: {task['virus']}")
 
         episode_start = time.time()
+        info = {}
+        env = None
 
         try:
             env = BioResearchEnv(
@@ -398,6 +406,7 @@ def run_environment_benchmark(
             }
 
         except Exception as error:
+            info = {"processing_status": "FAILED", "error": str(error)}
             runtime = (
                 time.time()
                 - episode_start
@@ -411,7 +420,7 @@ def run_environment_benchmark(
                 "host": task["host"],
                 "virus": task["virus"],
                 "expected_status": task["expected_status"],
-                "predicted_status": "ERROR",
+                "predicted_status": "UNCLEAR",
                 "correct": False,
                 "episode_reward": 0.0,
                 "steps": 0,
@@ -458,6 +467,15 @@ def run_environment_benchmark(
                 ),
             }
 
+        row["classification"] = info.get("classification", "INSUFFICIENT_EVIDENCE")
+        row["processing_status"] = info.get("processing_status", "COMPLETED")
+        benchmark_capture.append(sidecar, row, {
+            "info": info,
+            "search_metadata": env.get_search_metadata() if env else {},
+            "analyzed_results": env.get_analyzed_results() if env else {},
+            "selected_papers": env.papers if env else {},
+            "retrieved_papers": env.raw_candidate_papers if env else [],
+        })
         results.append(row)
 
         print()

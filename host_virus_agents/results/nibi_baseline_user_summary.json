@@ -1,0 +1,109 @@
+{
+  "origin": "authoritative_user_supplied_live_summary",
+  "timestamp_recorded": "2026-09-26T05:40:06.196528+00:00",
+  "model": "Qwen3-8B",
+  "platform": "Nibi",
+  "completed": 12,
+  "correct": 0,
+  "accuracy": 0.0,
+  "mean_reward": -1.25,
+  "mean_steps": 9.0,
+  "mean_searches": 3.0,
+  "mean_papers_analyzed": 5.0,
+  "runtime_minutes_approx": 13.3,
+  "baseline_tests_passed": 42,
+  "raw_csv_and_log_available_locally": false,
+  "failure_patterns": [
+    "UNBOUND_DIRECTED_ASSERTION",
+    "EMPTY_EXTRACTION",
+    "COMPARISON_SOURCE_MISMATCH",
+    "SELF_COMPARISON",
+    "COMPARISON_TYPE_ON_HOST_EDGE"
+  ],
+  "cases": [
+    {
+      "host": "Lampyris noctiluca",
+      "virus": "Lampyris noctiluca partiti-like virus 1",
+      "expected": "KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Arabidopsis thaliana",
+      "virus": "Turnip mosaic virus",
+      "expected": "KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Mus musculus",
+      "virus": "Mouse hepatitis virus",
+      "expected": "KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Homo sapiens",
+      "virus": "SARS-CoV-2",
+      "expected": "KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Lampyris noctiluca",
+      "virus": "Hubei partiti-like virus 31",
+      "expected": "POSSIBLY_KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Lampyris noctiluca",
+      "virus": "Hubei partiti-like virus 51",
+      "expected": "POSSIBLY_KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Lampyris noctiluca",
+      "virus": "Hubei chuvirus-like virus 3",
+      "expected": "POSSIBLY_KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Lampyris noctiluca",
+      "virus": "Hubei toti-like virus 16",
+      "expected": "POSSIBLY_KNOWN",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Tribolium castaneum",
+      "virus": "Hubei partiti-like virus 31",
+      "expected": "NO_EVIDENCE_FOUND",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Arabidopsis thaliana",
+      "virus": "Mouse hepatitis virus",
+      "expected": "NO_EVIDENCE_FOUND",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Mus musculus",
+      "virus": "Turnip mosaic virus",
+      "expected": "NO_EVIDENCE_FOUND",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    },
+    {
+      "host": "Aedes aegypti",
+      "virus": "Mouse hepatitis virus",
+      "expected": "NO_EVIDENCE_FOUND",
+      "predicted": "UNCLEAR",
+      "post_change_prediction": null
+    }
+  ]
+}

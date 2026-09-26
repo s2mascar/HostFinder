@@ -108,6 +108,7 @@ class BioResearchEnv:
         self.analyzed_results = {}
 
         self.search_metadata = {
+            "queries_attempted": [],
             "queries_planned": 0,
             "queries_executed": 0,
             "source_successes": 0,
@@ -156,6 +157,8 @@ class BioResearchEnv:
 
         self.search_count += 1
         self.search_metadata["queries_executed"] += 1
+        self.search_metadata["queries_attempted"].append({"host_term": host_term, "virus_term": virus_term,
+                                                         "source_status": statuses, "retrieved_papers": papers})
 
         for status in statuses:
             if status.get("success"):

@@ -1,3 +1,32 @@
+# Update — correctness iteration 2 (2026-09-26)
+
+The authoritative latest **live baseline is 0/12, all UNCLEAR**, supplied by the user for Qwen3-8B on Nibi. The old live CSV/log are not present locally. The original 42 tests passed on Nibi before that run. This iteration now has **77 passing local Python tests**, with all original tests preserved.
+
+**Post-change live benchmark: PENDING.** All 12 final classifications and correctness judgments require the new Nibi run. No repaired live label or evidence edge is claimed. Zero prior false KNOWN/related calls reflected abstention; it was not a passing benchmark.
+
+| # | Host | Virus | Expected | Latest live before | New live after | Correct after |
+|---|---|---|---|---|---|---|
+| 1 | Lampyris noctiluca | Lampyris noctiluca partiti-like virus 1 | KNOWN | UNCLEAR | PENDING | Not measured |
+| 2 | Arabidopsis thaliana | Turnip mosaic virus | KNOWN | UNCLEAR | PENDING | Not measured |
+| 3 | Mus musculus | Mouse hepatitis virus | KNOWN | UNCLEAR | PENDING | Not measured |
+| 4 | Homo sapiens | SARS-CoV-2 | KNOWN | UNCLEAR | PENDING | Not measured |
+| 5 | Lampyris noctiluca | Hubei partiti-like virus 31 | POSSIBLY_KNOWN | UNCLEAR | PENDING | Not measured |
+| 6 | Lampyris noctiluca | Hubei partiti-like virus 51 | POSSIBLY_KNOWN | UNCLEAR | PENDING | Not measured |
+| 7 | Lampyris noctiluca | Hubei chuvirus-like virus 3 | POSSIBLY_KNOWN | UNCLEAR | PENDING | Not measured |
+| 8 | Lampyris noctiluca | Hubei toti-like virus 16 | POSSIBLY_KNOWN | UNCLEAR | PENDING | Not measured |
+| 9 | Tribolium castaneum | Hubei partiti-like virus 31 | NO_EVIDENCE_FOUND | UNCLEAR | PENDING | Not measured |
+| 10 | Arabidopsis thaliana | Mouse hepatitis virus | NO_EVIDENCE_FOUND | UNCLEAR | PENDING | Not measured |
+| 11 | Mus musculus | Turnip mosaic virus | NO_EVIDENCE_FOUND | UNCLEAR | PENDING | Not measured |
+| 12 | Aedes aegypti | Mouse hepatitis virus | NO_EVIDENCE_FOUND | UNCLEAR | PENDING | Not measured |
+
+Current changes and tests are documented in `CORRECTNESS_IMPLEMENTATION_REPORT.md`. Run `run_correctness_benchmark.sh` on Nibi and return the entire generated run directory. Full source, extraction and request traces are now captured. `CORRECTNESS_FINAL_REPORT.md` explicitly marks the checkpoint blocked, not frozen.
+
+Latest offline quotation replay: `results/correctness_iteration2_offline.json`; 0/12 due unavailable identity/coverage, not a live substitute. The original historical fixture remains unchanged. Machine-readable user summary: `results/nibi_baseline_user_summary.json`.
+
+---
+
+The remainder below preserves the previous iteration's historical replay report. Its 'live score not measured' statement refers to that earlier report, not the newly supplied live baseline above.
+
 # Correctness benchmark after implementation
 
 ## Result and limits
