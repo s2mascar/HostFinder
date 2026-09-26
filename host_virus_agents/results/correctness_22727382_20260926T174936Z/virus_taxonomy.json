@@ -1,0 +1,777 @@
+{
+  "name:hubei chuvirus like virus 3": {
+    "aliases": [
+      "Hubei chuvirus-like virus 3"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Monjiviricetes",
+      "family": "Chuviridae",
+      "genus": "Scarabeuvirus",
+      "kingdom": "Orthornavirae",
+      "order": "Jingchuvirales",
+      "phylum": "Negarnaviricota",
+      "realm": "Riboviria",
+      "species": "Scarabeuvirus dentati",
+      "subphylum": "Haploviricotina"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Negarnaviricota",
+        "tax_id": "2497569"
+      },
+      {
+        "rank": "subphylum",
+        "scientific_name": "Haploviricotina",
+        "tax_id": "2497570"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Monjiviricetes",
+        "tax_id": "2497574"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Jingchuvirales",
+        "tax_id": "2499407"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Chuviridae",
+        "tax_id": "2501952"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Scarabeuvirus",
+        "tax_id": "2843020"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Scarabeuvirus dentati",
+        "tax_id": "2846148"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Hubei chuvirus-like virus 3",
+        "tax_id": "1922858"
+      }
+    ],
+    "query": "Hubei chuvirus-like virus 3",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Hubei chuvirus-like virus 3",
+    "tax_id": "1922858"
+  },
+  "name:hubei partiti like virus 31": {
+    "aliases": [
+      "Hubei partiti-like virus 31"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei partiti-like virus 31"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei partiti-like virus 31",
+        "tax_id": "1923038"
+      }
+    ],
+    "query": "Hubei partiti-like virus 31",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei partiti-like virus 31",
+    "tax_id": "1923038"
+  },
+  "name:hubei partiti like virus 51": {
+    "aliases": [
+      "Hubei partiti-like virus 51"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei partiti-like virus 51"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei partiti-like virus 51",
+        "tax_id": "1923060"
+      }
+    ],
+    "query": "Hubei partiti-like virus 51",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei partiti-like virus 51",
+    "tax_id": "1923060"
+  },
+  "name:hubei toti like virus 16": {
+    "aliases": [
+      "Hubei toti-like virus 16"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei toti-like virus 16"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei toti-like virus 16",
+        "tax_id": "1923304"
+      }
+    ],
+    "query": "Hubei toti-like virus 16",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei toti-like virus 16",
+    "tax_id": "1923304"
+  },
+  "name:lampyris noctiluca partiti like virus 1": {
+    "aliases": [
+      "Lampyris noctiluca partiti-like virus 1"
+    ],
+    "by_rank": {},
+    "lineage": [],
+    "query": "Lampyris noctiluca partiti-like virus 1",
+    "rank": null,
+    "resolved": false,
+    "scientific_name": null,
+    "tax_id": null
+  },
+  "name:mouse hepatitis virus": {
+    "aliases": [
+      "mouse hepatitis virus",
+      "Mouse hepatitis virus",
+      "murine hepatitis virus, MHV",
+      "murine hepatitis virus MHV",
+      "mouse hepatitis virus MHV",
+      "Murine hepatitis virus",
+      "MHV"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Pisoniviricetes",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus",
+      "kingdom": "Orthornavirae",
+      "order": "Nidovirales",
+      "phylum": "Pisuviricota",
+      "realm": "Riboviria",
+      "species": "Betacoronavirus muris",
+      "subfamily": "Orthocoronavirinae",
+      "subgenus": "Embecovirus",
+      "suborder": "Cornidovirineae"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Pisuviricota",
+        "tax_id": "2732408"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Pisoniviricetes",
+        "tax_id": "2732506"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Nidovirales",
+        "tax_id": "76804"
+      },
+      {
+        "rank": "suborder",
+        "scientific_name": "Cornidovirineae",
+        "tax_id": "2499399"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Coronaviridae",
+        "tax_id": "11118"
+      },
+      {
+        "rank": "subfamily",
+        "scientific_name": "Orthocoronavirinae",
+        "tax_id": "2501931"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Betacoronavirus",
+        "tax_id": "694002"
+      },
+      {
+        "rank": "subgenus",
+        "scientific_name": "Embecovirus",
+        "tax_id": "2509481"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Betacoronavirus muris",
+        "tax_id": "3433759"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Murine coronavirus",
+        "tax_id": "694005"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Murine hepatitis virus",
+        "tax_id": "11138"
+      }
+    ],
+    "query": "Mouse hepatitis virus",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Murine hepatitis virus",
+    "tax_id": "11138"
+  },
+  "name:sars cov 2": {
+    "aliases": [
+      "SARS-CoV-2",
+      "Severe acute respiratory syndrome coronavirus 2",
+      "Human coronavirus 2019",
+      "COVID-19 virus",
+      "2019-nCoV",
+      "SARS-CoV2",
+      "HCoV-19",
+      "SARS-2",
+      "SARS2"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Pisoniviricetes",
+      "family": "Coronaviridae",
+      "genus": "Betacoronavirus",
+      "kingdom": "Orthornavirae",
+      "order": "Nidovirales",
+      "phylum": "Pisuviricota",
+      "realm": "Riboviria",
+      "species": "Betacoronavirus pandemicum",
+      "subfamily": "Orthocoronavirinae",
+      "subgenus": "Sarbecovirus",
+      "suborder": "Cornidovirineae"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Pisuviricota",
+        "tax_id": "2732408"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Pisoniviricetes",
+        "tax_id": "2732506"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Nidovirales",
+        "tax_id": "76804"
+      },
+      {
+        "rank": "suborder",
+        "scientific_name": "Cornidovirineae",
+        "tax_id": "2499399"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Coronaviridae",
+        "tax_id": "11118"
+      },
+      {
+        "rank": "subfamily",
+        "scientific_name": "Orthocoronavirinae",
+        "tax_id": "2501931"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Betacoronavirus",
+        "tax_id": "694002"
+      },
+      {
+        "rank": "subgenus",
+        "scientific_name": "Sarbecovirus",
+        "tax_id": "2509511"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Betacoronavirus pandemicum",
+        "tax_id": "3418604"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Severe acute respiratory syndrome coronavirus 2",
+        "tax_id": "2697049"
+      }
+    ],
+    "query": "SARS-CoV-2",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Severe acute respiratory syndrome coronavirus 2",
+    "tax_id": "2697049"
+  },
+  "name:turnip mosaic virus": {
+    "aliases": [
+      "Turnip mosaic virus",
+      "turnip mosaic potyvirus TuMV",
+      "turnip mosaic virus, TuMV",
+      "TuMV"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Stelpaviricetes",
+      "family": "Potyviridae",
+      "genus": "Potyvirus",
+      "kingdom": "Orthornavirae",
+      "order": "Patatavirales",
+      "phylum": "Pisuviricota",
+      "realm": "Riboviria",
+      "species": "Potyvirus rapae"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Pisuviricota",
+        "tax_id": "2732408"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Stelpaviricetes",
+        "tax_id": "2732507"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Patatavirales",
+        "tax_id": "2732550"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Potyviridae",
+        "tax_id": "39729"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Potyvirus",
+        "tax_id": "12195"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Potyvirus rapae",
+        "tax_id": "3240607"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Turnip mosaic virus",
+        "tax_id": "12230"
+      }
+    ],
+    "query": "Turnip mosaic virus",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Turnip mosaic virus",
+    "tax_id": "12230"
+  },
+  "taxid:12230": {
+    "aliases": [
+      "Turnip mosaic virus",
+      "turnip mosaic potyvirus TuMV",
+      "turnip mosaic virus, TuMV",
+      "TuMV"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Stelpaviricetes",
+      "family": "Potyviridae",
+      "genus": "Potyvirus",
+      "kingdom": "Orthornavirae",
+      "order": "Patatavirales",
+      "phylum": "Pisuviricota",
+      "realm": "Riboviria",
+      "species": "Potyvirus rapae"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Pisuviricota",
+        "tax_id": "2732408"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Stelpaviricetes",
+        "tax_id": "2732507"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Patatavirales",
+        "tax_id": "2732550"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Potyviridae",
+        "tax_id": "39729"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Potyvirus",
+        "tax_id": "12195"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Potyvirus rapae",
+        "tax_id": "3240607"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Turnip mosaic virus",
+        "tax_id": "12230"
+      }
+    ],
+    "query": "Turnip mosaic virus",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Turnip mosaic virus",
+    "tax_id": "12230"
+  },
+  "taxid:1922858": {
+    "aliases": [
+      "Hubei chuvirus-like virus 3"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "class": "Monjiviricetes",
+      "family": "Chuviridae",
+      "genus": "Scarabeuvirus",
+      "kingdom": "Orthornavirae",
+      "order": "Jingchuvirales",
+      "phylum": "Negarnaviricota",
+      "realm": "Riboviria",
+      "species": "Scarabeuvirus dentati",
+      "subphylum": "Haploviricotina"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "kingdom",
+        "scientific_name": "Orthornavirae",
+        "tax_id": "2732396"
+      },
+      {
+        "rank": "phylum",
+        "scientific_name": "Negarnaviricota",
+        "tax_id": "2497569"
+      },
+      {
+        "rank": "subphylum",
+        "scientific_name": "Haploviricotina",
+        "tax_id": "2497570"
+      },
+      {
+        "rank": "class",
+        "scientific_name": "Monjiviricetes",
+        "tax_id": "2497574"
+      },
+      {
+        "rank": "order",
+        "scientific_name": "Jingchuvirales",
+        "tax_id": "2499407"
+      },
+      {
+        "rank": "family",
+        "scientific_name": "Chuviridae",
+        "tax_id": "2501952"
+      },
+      {
+        "rank": "genus",
+        "scientific_name": "Scarabeuvirus",
+        "tax_id": "2843020"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Scarabeuvirus dentati",
+        "tax_id": "2846148"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "Hubei chuvirus-like virus 3",
+        "tax_id": "1922858"
+      }
+    ],
+    "query": "Hubei chuvirus-like virus 3",
+    "rank": "no rank",
+    "resolved": true,
+    "scientific_name": "Hubei chuvirus-like virus 3",
+    "tax_id": "1922858"
+  },
+  "taxid:1923038": {
+    "aliases": [
+      "Hubei partiti-like virus 31"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei partiti-like virus 31"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei partiti-like virus 31",
+        "tax_id": "1923038"
+      }
+    ],
+    "query": "Hubei partiti-like virus 31",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei partiti-like virus 31",
+    "tax_id": "1923038"
+  },
+  "taxid:1923060": {
+    "aliases": [
+      "Hubei partiti-like virus 51"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei partiti-like virus 51"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei partiti-like virus 51",
+        "tax_id": "1923060"
+      }
+    ],
+    "query": "Hubei partiti-like virus 51",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei partiti-like virus 51",
+    "tax_id": "1923060"
+  },
+  "taxid:1923304": {
+    "aliases": [
+      "Hubei toti-like virus 16"
+    ],
+    "by_rank": {
+      "acellular root": "Viruses",
+      "realm": "Riboviria",
+      "species": "Hubei toti-like virus 16"
+    },
+    "lineage": [
+      {
+        "rank": "acellular root",
+        "scientific_name": "Viruses",
+        "tax_id": "10239"
+      },
+      {
+        "rank": "realm",
+        "scientific_name": "Riboviria",
+        "tax_id": "2559587"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified Riboviria",
+        "tax_id": "2585030"
+      },
+      {
+        "rank": "no rank",
+        "scientific_name": "unclassified RNA viruses ShiM-2016",
+        "tax_id": "1922348"
+      },
+      {
+        "rank": "species",
+        "scientific_name": "Hubei toti-like virus 16",
+        "tax_id": "1923304"
+      }
+    ],
+    "query": "Hubei toti-like virus 16",
+    "rank": "species",
+    "resolved": true,
+    "scientific_name": "Hubei toti-like virus 16",
+    "tax_id": "1923304"
+  }
+}

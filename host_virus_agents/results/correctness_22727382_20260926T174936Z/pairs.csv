@@ -1,0 +1,13 @@
+host,virus,expected_status,predicted_status,correct,papers_examined,exact_supporting_papers,related_papers,confidence,reason,runtime_seconds,test_type,reference_hint,classification,processing_status
+Lampyris noctiluca,Lampyris noctiluca partiti-like virus 1,KNOWN,UNCLEAR,False,1,0,0,LOW,Host or virus taxonomy resolution is unresolved or unrecorded.,70.07,positive,PMC7093385,INSUFFICIENT_EVIDENCE,COMPLETED
+Arabidopsis thaliana,Turnip mosaic virus,KNOWN,UNCLEAR,False,8,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,78.56,positive,PMID17427806,INSUFFICIENT_EVIDENCE,COMPLETED
+Mus musculus,Mouse hepatitis virus,KNOWN,KNOWN,True,8,1,0,LOW,Verified exact directed evidence supports this pair; experimental status is retained per edge.,118.61,positive,PMID8677422,KNOWN,COMPLETED
+Homo sapiens,SARS-CoV-2,KNOWN,UNCLEAR,False,8,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,112.81,positive,PMID32699094,INSUFFICIENT_EVIDENCE,COMPLETED
+Lampyris noctiluca,Hubei partiti-like virus 31,POSSIBLY_KNOWN,NO_EVIDENCE_FOUND,False,1,0,0,LOW,Completed recorded queries found no verified exact association; novelty is not established.,23.32,related,PMC7093385,INSUFFICIENT_EVIDENCE,COMPLETED
+Lampyris noctiluca,Hubei partiti-like virus 51,POSSIBLY_KNOWN,UNCLEAR,False,1,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,29.75,related,PMC7093385,INSUFFICIENT_EVIDENCE,COMPLETED
+Lampyris noctiluca,Hubei chuvirus-like virus 3,POSSIBLY_KNOWN,UNCLEAR,False,6,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,85.83,related,PMC7093385,INSUFFICIENT_EVIDENCE,COMPLETED
+Lampyris noctiluca,Hubei toti-like virus 16,POSSIBLY_KNOWN,UNCLEAR,False,2,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,52.54,related,PMC7093385,INSUFFICIENT_EVIDENCE,COMPLETED
+Tribolium castaneum,Hubei partiti-like virus 31,NO_EVIDENCE_FOUND,UNCLEAR,False,1,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,28.32,negative,HostFinder candidate,INSUFFICIENT_EVIDENCE,COMPLETED
+Arabidopsis thaliana,Mouse hepatitis virus,NO_EVIDENCE_FOUND,UNCLEAR,False,8,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,79.42,negative,decoy,INSUFFICIENT_EVIDENCE,COMPLETED
+Mus musculus,Turnip mosaic virus,NO_EVIDENCE_FOUND,UNCLEAR,False,8,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,91.89,negative,decoy,INSUFFICIENT_EVIDENCE,COMPLETED
+Aedes aegypti,Mouse hepatitis virus,NO_EVIDENCE_FOUND,UNCLEAR,False,8,0,0,LOW,Candidate evidence contains unresolved extraction or attribution errors.,96.1,negative,decoy,INSUFFICIENT_EVIDENCE,COMPLETED

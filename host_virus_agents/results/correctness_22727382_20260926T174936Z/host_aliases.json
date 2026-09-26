@@ -1,0 +1,44 @@
+{
+  "lampyris noctiluca": [
+    "Cantharis noctiluca",
+    "Lampyris noctiluca",
+    "common glow worm",
+    "L. noctiluca"
+  ],
+  "arabidopsis thaliana": [
+    "Arabidopsis thaliana",
+    "Arabis thaliana",
+    "mouse-ear cress",
+    "A. thaliana",
+    "thale cress",
+    "thale-cress"
+  ],
+  "mus musculus": [
+    "Mus musculus",
+    "house mouse",
+    "M. musculus",
+    "mouse"
+  ],
+  "homo sapiens": [
+    "Homo sapiens",
+    "H. sapiens",
+    "human"
+  ],
+  "tribolium castaneum": [
+    "rust-red flour beetle",
+    "Tribolium castaneum",
+    "Colydium castaneum",
+    "red flour beetle",
+    "T. castaneum"
+  ],
+  "aedes aegypti": [
+    "Stegomyia fasciata var. luciensis",
+    "Aedes aegypti var. luciensis",
+    "Aedes (Stegomyia) aegypti",
+    "yellow fever mosquito",
+    "Stegomyia aegypti",
+    "Aedes aegypti",
+    "Culex aegypti",
+    "A. aegypti"
+  ]
+}
